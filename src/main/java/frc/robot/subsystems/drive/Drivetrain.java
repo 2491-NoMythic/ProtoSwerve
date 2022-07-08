@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.drive;
 
+import static frc.robot.Constants.Drivetrain.*;
+
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -20,10 +22,10 @@ public class Drivetrain {
   private final Translation2d m_backLeftLocation = new Translation2d(-0.381, 0.381);
   private final Translation2d m_backRightLocation = new Translation2d(-0.381, -0.381);
 
-  private final SwerveModule m_frontLeft = new SwerveModule(1, 2, 0, 1, 2, 3);
-  private final SwerveModule m_frontRight = new SwerveModule(3, 4, 4, 5, 6, 7);
-  private final SwerveModule m_backLeft = new SwerveModule(5, 6, 8, 9, 10, 11);
-  private final SwerveModule m_backRight = new SwerveModule(7, 8, 12, 13, 14, 15);
+  private final SwerveModule m_frontLeft = new SwerveModule(FL_DRIVE_MOTOR_ID, FL_TURN_MOTOR_ID, 0, 1, 2, 3);
+  private final SwerveModule m_frontRight = new SwerveModule(FR_DRIVE_MOTOR_ID, FR_TURN_MOTOR_ID, 4, 5, 6, 7);
+  private final SwerveModule m_backLeft = new SwerveModule(BL_DRIVE_MOTOR_ID, BL_TURN_MOTOR_ID, 8, 9, 10, 11);
+  private final SwerveModule m_backRight = new SwerveModule(BR_DRIVE_MOTOR_ID, BR_TURN_MOTOR_ID, 12, 13, 14, 15);
 
   private final AnalogGyro m_gyro = new AnalogGyro(0);
 
@@ -67,6 +69,7 @@ public class Drivetrain {
         m_frontLeft.getState(),
         m_frontRight.getState(),
         m_backLeft.getState(),
-        m_backRight.getState());
+        m_backRight.getState()
+    );
   }
 }
