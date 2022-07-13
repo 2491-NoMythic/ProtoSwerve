@@ -26,6 +26,24 @@ public final class Constants {
         public static final int FR_TURN_MOTOR_ID = 2491;
         public static final int BR_TURN_MOTOR_ID = 2491;
         public static final int BL_TURN_MOTOR_ID = 2491;
+
+        public static final int GYRO_ID = 2491;
+
+        public static final double K_MAX_SPEED = 3.0; // 3 meters per second
+        public static final double K_MAX_ANGULAR_SPEED = Math.PI; // 1/2 rotation per second
         }
+    public final class PS4 {
+        private PS4() {
+        }
+        public static final int CONTROLLER_ID = 1;
+        /**Left Stick Tilt Left/Right*/
+        public static final int X_AXES = 0; 
+        /**Left Stick Tilt Forwards/Backwards*/
+        public static final int Y_AXES = 1;
+        /**Right Stick Tilt Left/Right*/
+        public static final int Z_AXES = 2;
+        public static final int SLIDER_AXES = 3;
+        public static final int TRIGGER_BUTTON = 0;
+    }
 }
 
