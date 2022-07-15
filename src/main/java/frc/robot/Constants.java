@@ -18,16 +18,16 @@ public final class Constants {
         private Drivetrain() {
         }
 
-        public static final int FL_DRIVE_MOTOR_ID = 2491;
-        public static final int FR_DRIVE_MOTOR_ID = 2491;
-        public static final int BR_DRIVE_MOTOR_ID = 2491;
-        public static final int BL_DRIVE_MOTOR_ID = 2491;
-        public static final int FL_TURN_MOTOR_ID = 2491;
-        public static final int FR_TURN_MOTOR_ID = 2491;
-        public static final int BR_TURN_MOTOR_ID = 2491;
-        public static final int BL_TURN_MOTOR_ID = 2491;
+        public static final int FL_DRIVE_MOTOR_ID = 1;
+        public static final int FR_DRIVE_MOTOR_ID = 3;
+        public static final int BR_DRIVE_MOTOR_ID = 5;
+        public static final int BL_DRIVE_MOTOR_ID = 7;
+        public static final int FL_TURN_MOTOR_ID = 2;
+        public static final int FR_TURN_MOTOR_ID = 4;
+        public static final int BR_TURN_MOTOR_ID = 6;
+        public static final int BL_TURN_MOTOR_ID = 8;
 
-        public static final int GYRO_ID = 2491;
+        public static final int GYRO_ID = 1;
 
         public static final double K_MAX_SPEED = 3.0; // 3 meters per second
         public static final double K_MAX_ANGULAR_SPEED = Math.PI; // 1/2 rotation per second
