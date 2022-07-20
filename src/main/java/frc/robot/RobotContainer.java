@@ -4,13 +4,16 @@
 
 package frc.robot;
 
+import static frc.robot.Constants.PS4.*;
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.commands.Drive;
-import frc.robot.commands.ExampleCommand;
-import frc.robot.subsystems.ExampleSubsystem;
-import frc.robot.subsystems.drive.Drivetrain;
+import edu.wpi.first.wpilibj.PS4Controller;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.Button;
+import frc.robot.commands.Drive;
+import frc.robot.subsystems.DrivetrainSubsystem;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -20,18 +23,24 @@ import edu.wpi.first.wpilibj2.command.Command;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final ExampleSubsystem exampleSubsystem = new ExampleSubsystem();
-  private final Drivetrain drivetrain;
+  private final DrivetrainSubsystem drivetrain = new DrivetrainSubsystem();
   private final Drive defaultDriveCommand;
+  private final PS4Controller controller = new PS4Controller(0);
 
-  private final ExampleCommand autoCommand = new ExampleCommand(exampleSubsystem);
-
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
+  /**
+   * The container for the robot. Contains subsystems, OI devices, and commands.
+   */
   public RobotContainer() {
-    drivetrain = new Drivetrain();
-
-    defaultDriveCommand = new Drive(drivetrain);
-
+    // Set up the default command for the drivetrain.
+    // The controls are for field-oriented driving:
+    // Left stick Y axis -> forward and backwards movement
+    // Left stick X axis -> left and right movement
+    // Right stick X axis -> rotation
+    defaultDriveCommand = new Drive(
+      drivetrain,
+      () -> -modifyAxis(controller.getRawAxis(X_AXES)) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
+      () -> -modifyAxis(controller.getRawAxis(Y_AXES)) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
+      () -> -modifyAxis(controller.getRawAxis(Z_AXES)) * DrivetrainSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND);  
     drivetrain.setDefaultCommand(defaultDriveCommand);
 
     // Configure the button bindings
@@ -41,10 +50,15 @@ public class RobotContainer {
   /**
    * Use this method to define your button->command mappings. Buttons can be created by
    * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
+   * edu.wpi.first.wpilibj.Joystick} or {@link PS4Controller}), and then passing it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
-  private void configureButtonBindings() {}
+  private void configureButtonBindings() {
+    // Back button zeros the gyroscope
+    new Button(controller::getPSButton)
+            // No requirements because we don't need to interrupt anything
+            .whenPressed(drivetrain::zeroGyroscope);
+  }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -53,6 +67,28 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An ExampleCommand will run in autonomous
-    return autoCommand;
+    return new InstantCommand();
+  }
+
+  private static double deadband(double value, double deadband) {
+    if (Math.abs(value) > deadband) {
+      if (value > 0.0) {
+        return (value - deadband) / (1.0 - deadband);
+      } else {
+        return (value + deadband) / (1.0 - deadband);
+      }
+    } else {
+      return 0.0;
+    }
+  }
+
+  private static double modifyAxis(double value) {
+    // Deadband
+    value = deadband(value, 0.05);
+
+    // Square the axis
+    value = Math.copySign(value * value, value);
+
+    return value;
   }
 }

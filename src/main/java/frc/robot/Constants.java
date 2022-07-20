@@ -14,20 +14,43 @@ package frc.robot;
  */
 public final class Constants {
 
-    public final class Drivetrain {
+    public static final class Drivetrain {
         private Drivetrain() {
         }
+        /**
+         * The left-to-right distance between the drivetrain wheels
+         *
+         * Should be measured from center to center.
+         */
+        public static final double DRIVETRAIN_TRACKWIDTH_METERS = 0.4953; // FIXME Measure and set trackwidth
+        /**
+         * The front-to-back distance between the drivetrain wheels.
+         *  
+         * Should be measured from center to center.
+         */
+        public static final double DRIVETRAIN_WHEELBASE_METERS = 0.4953; // FIXME Measure and set wheelbase
+
+        public static final int DRIVETRAIN_PIGEON_ID = 0;
 
         public static final int FL_DRIVE_MOTOR_ID = 1;
-        public static final int FR_DRIVE_MOTOR_ID = 3;
-        public static final int BR_DRIVE_MOTOR_ID = 5;
-        public static final int BL_DRIVE_MOTOR_ID = 7;
-        public static final int FL_TURN_MOTOR_ID = 2;
-        public static final int FR_TURN_MOTOR_ID = 4;
-        public static final int BR_TURN_MOTOR_ID = 6;
-        public static final int BL_TURN_MOTOR_ID = 8;
+        public static final int FL_STEER_MOTOR_ID = 2;
+        public static final int FL_STEER_ENCODER_ID = 1;
+        public static final double FL_STEER_OFFSET = -Math.toRadians(75.67); //Measure and set front left steer offset
 
-        public static final int GYRO_ID = 1;
+        public static final int FR_DRIVE_MOTOR_ID = 3;
+        public static final int FR_STEER_MOTOR_ID = 4;
+        public static final int FR_STEER_ENCODER_ID = 2;
+        public static final double FR_STEER_OFFSET = -Math.toRadians(258.83); // FIXME Measure and set front left steer offset
+
+        public static final int BR_DRIVE_MOTOR_ID = 5;
+        public static final int BR_STEER_MOTOR_ID = 6;
+        public static final int BR_STEER_ENCODER_ID = 3;
+        public static final double BR_STEER_OFFSET = -Math.toRadians(63.54); // FIXME Measure and set front left steer offset
+
+        public static final int BL_DRIVE_MOTOR_ID = 7;
+        public static final int BL_STEER_MOTOR_ID = 8;
+        public static final int BL_STEER_ENCODER_ID = 4;
+        public static final double BL_STEER_OFFSET = -Math.toRadians(110.21); // FIXME Measure and set front left steer offset
 
         public static final double K_MAX_SPEED = 3.0; // 3 meters per second
         public static final double K_MAX_ANGULAR_SPEED = Math.PI; // 1/2 rotation per second
