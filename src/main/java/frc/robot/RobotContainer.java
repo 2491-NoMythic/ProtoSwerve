@@ -53,12 +53,7 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj.Joystick} or {@link PS4Controller}), and then passing it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
-  private void configureButtonBindings() {
-    // Back button zeros the gyroscope
-    new Button(controller::getPSButton)
-            // No requirements because we don't need to interrupt anything
-            .whenPressed(drivetrain::zeroGyroscope);
-  }
+  private void configureButtonBindings() {}
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
