@@ -38,9 +38,9 @@ public class RobotContainer {
     // Right stick X axis -> rotation
     defaultDriveCommand = new Drive(
       drivetrain,
-      () -> -modifyAxis(controller.getRawAxis(X_AXES)) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
-      () -> -modifyAxis(controller.getRawAxis(Y_AXES)) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
-      () -> -modifyAxis(controller.getRawAxis(Z_AXES)) * DrivetrainSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND);  
+      () -> modifyAxis(controller.getRawAxis(X_AXES)) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
+      () -> modifyAxis(controller.getRawAxis(Y_AXES)) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
+      () -> modifyAxis(controller.getRawAxis(Z_AXES)) * DrivetrainSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND);  
     drivetrain.setDefaultCommand(defaultDriveCommand);
 
     // Configure the button bindings
@@ -53,7 +53,13 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj.Joystick} or {@link PS4Controller}), and then passing it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
-  private void configureButtonBindings() {}
+  private void configureButtonBindings() {
+    // Back button zeros the gyroscope
+    // new Button(() -> controller.getRawButton(13)).whenPressed(drivetrain::zeroGyroscope);
+    new Button(controller::getPSButton)
+            // No requirements because we don't need to interrupt anything
+            .whenPressed(drivetrain::zeroGyroscope);
+  }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
