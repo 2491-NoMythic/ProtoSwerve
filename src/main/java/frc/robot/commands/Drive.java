@@ -4,20 +4,24 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DrivetrainSubsystem;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 public class Drive extends CommandBase {
     private final DrivetrainSubsystem drivetrain;
 
+    private final BooleanSupplier robotCentricMode;
     private final DoubleSupplier translationXSupplier;
     private final DoubleSupplier translationYSupplier;
     private final DoubleSupplier rotationSupplier;
 
     public Drive(DrivetrainSubsystem drivetrainSubsystem,
-                               DoubleSupplier translationXSupplier,
-                               DoubleSupplier translationYSupplier,
-                               DoubleSupplier rotationSupplier) {
+        BooleanSupplier robotCentricMode,
+        DoubleSupplier translationXSupplier,
+        DoubleSupplier translationYSupplier,
+        DoubleSupplier rotationSupplier) {
         this.drivetrain = drivetrainSubsystem;
+        this.robotCentricMode = robotCentricMode;
         this.translationXSupplier = translationXSupplier;
         this.translationYSupplier = translationYSupplier;
         this.rotationSupplier = rotationSupplier;
@@ -28,15 +32,22 @@ public class Drive extends CommandBase {
     @Override
     public void execute() {
         // You can use `new ChassisSpeeds(...)` for robot-oriented movement instead of field-oriented movement
-        drivetrain.drive(
+        if (robotCentricMode.getAsBoolean()) {
+            drivetrain.drive(new ChassisSpeeds(
+                translationXSupplier.getAsDouble(),
+                translationYSupplier.getAsDouble(),
+                rotationSupplier.getAsDouble()
+            ));
+        } else {
+            drivetrain.drive(
                 ChassisSpeeds.fromFieldRelativeSpeeds(
-                // new ChassisSpeeds(
-                        translationXSupplier.getAsDouble(),
-                        translationYSupplier.getAsDouble(),
-                        rotationSupplier.getAsDouble(),
-                        drivetrain.getGyroscopeRotation()
+                    translationXSupplier.getAsDouble(),
+                    translationYSupplier.getAsDouble(),
+                    rotationSupplier.getAsDouble(),
+                    drivetrain.getGyroscopeRotation()
                 )
-        );
+            );
+        }
     }
 
     @Override

@@ -38,6 +38,7 @@ public class RobotContainer {
     // Right stick X axis -> rotation
     defaultDriveCommand = new Drive(
       drivetrain,
+      () -> controller.getL1Button(),
       () -> modifyAxis(-controller.getRawAxis(X_AXES)) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
       () -> modifyAxis(-controller.getRawAxis(Y_AXES)) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
       () -> modifyAxis(-controller.getRawAxis(Z_AXES)) * DrivetrainSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND);  
