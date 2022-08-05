@@ -83,6 +83,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
 	 */
 	private final SwerveModule[] modules;
 
+	private final double[] lastAngles;
+
 	private ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 	private final Field2d m_field = new Field2d();
 
@@ -93,6 +95,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 		SmartDashboard.putData("Field", m_field);
 		
 		modules = new SwerveModule[4];
+		lastAngles = new double[4];
 
 		modules[0] = Mk4SwerveModuleHelper.createFalcon500(
 			// This parameter is optional, but will allow you to see the current state of the module on the dashboard.
@@ -144,12 +147,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
 			BR_STEER_ENCODER_ID,
 			BR_STEER_OFFSET
 		);
-		
-		resetOdometry(new Pose2d(5, 5, new Rotation2d())); //TODO maybe make a smartDashboard input for field location
 	}
 
-	private final SwerveDriveOdometry odometer = new SwerveDriveOdometry(kinematics,
-	new Rotation2d(0));
+
+	private final SwerveDriveOdometry odometer = new SwerveDriveOdometry(kinematics, getGyroscopeRotation(), new Pose2d(5.0, 5.0, new Rotation2d()));
 
 	/**
 	 * Sets the gyroscope angle to zero. This can be used to set the direction the robot is currently facing to the
@@ -157,6 +158,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 	 */
 	public void zeroGyroscope() {
 		pigeon.setYaw(0.0);
+		odometer.resetPosition(new Pose2d(5.0, 5.0, new Rotation2d()), new Rotation2d());
 	}
 
 	public Rotation2d getGyroscopeRotation() {
@@ -178,8 +180,19 @@ public class DrivetrainSubsystem extends SubsystemBase {
         odometer.resetPosition(pose, getRotation2d());
     }
 	
+	public void pointWheelsForward() {
+		for (int i = 0; i < 4; i++) {
+			setModule(i, 0, 0);
+		}
+	}
+
 	public void drive(ChassisSpeeds new_ChassisSpeeds) {
 		chassisSpeeds = new_ChassisSpeeds;
+	}
+
+	private void setModule(int i, double driveVoltage, double steerAngle) {
+		modules[i].set(driveVoltage, steerAngle);
+		lastAngles[i] = steerAngle;
 	}
 
 	@Override
@@ -188,12 +201,12 @@ public class DrivetrainSubsystem extends SubsystemBase {
 		double maxSpeed = Collections.max(Arrays.asList(states)).speedMetersPerSecond;
 		if (maxSpeed <= 0.01) {
 			for (int i = 0; i < 4; i++) {
-				modules[i].set(0, modules[i].getSteerAngle());
+				setModule(i, 0, lastAngles[i]);
 			}
 		} else {
 			SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND); //changed normalizeWheelSpeeds to desaturateWheelSpeeds
 			for (int i = 0; i < 4; i++) {
-				modules[i].set(states[i].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[i].angle.getRadians());
+				setModule(i, states[i].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[i].angle.getRadians());
 			}
 		}
 

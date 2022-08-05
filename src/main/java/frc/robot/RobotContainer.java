@@ -92,4 +92,8 @@ public class RobotContainer {
 
     return value;
   }
+
+  public void teleopInit() {
+    drivetrain.pointWheelsForward();
+  }
 }
