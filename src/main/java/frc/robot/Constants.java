@@ -35,22 +35,22 @@ public final class Constants {
         public static final int FL_DRIVE_MOTOR_ID = 1;
         public static final int FL_STEER_MOTOR_ID = 2;
         public static final int FL_STEER_ENCODER_ID = 1;
-        public static final double FL_STEER_OFFSET = -Math.toRadians(255.67);
+        public static final double FL_STEER_OFFSET = -Math.toRadians(75.67);
 
         public static final int FR_DRIVE_MOTOR_ID = 3;
         public static final int FR_STEER_MOTOR_ID = 4;
         public static final int FR_STEER_ENCODER_ID = 2;
-        public static final double FR_STEER_OFFSET = -Math.toRadians(78.83);
+        public static final double FR_STEER_OFFSET = -Math.toRadians(258.83);
 
         public static final int BR_DRIVE_MOTOR_ID = 5;
         public static final int BR_STEER_MOTOR_ID = 6;
         public static final int BR_STEER_ENCODER_ID = 3;
-        public static final double BR_STEER_OFFSET = -Math.toRadians(290.21);
+        public static final double BR_STEER_OFFSET = -Math.toRadians(110.21);
 
         public static final int BL_DRIVE_MOTOR_ID = 7;
         public static final int BL_STEER_MOTOR_ID = 8;
         public static final int BL_STEER_ENCODER_ID = 4;
-        public static final double BL_STEER_OFFSET = -Math.toRadians(243.54);
+        public static final double BL_STEER_OFFSET = -Math.toRadians(63.54);
 
 
         public static final double K_MAX_SPEED = 3.0; // 3 meters per second

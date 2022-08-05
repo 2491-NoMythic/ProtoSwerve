@@ -78,8 +78,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
 	 * These are our modules. We initialize them in the constructor.
 	 * 0 = Front Left
 	 * 1 = Front Right
-	 * 2 = Back Right
-	 * 3 = Back Left
+	 * 2 = Back Left
+	 * 3 = Back Right
 	 */
 	private final SwerveModule[] modules;
 
@@ -200,8 +200,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
 		odometer.update(getGyroscopeRotation(), 
 			new SwerveModuleState(modules[0].getDriveVelocity(), new Rotation2d(modules[0].getSteerAngle())), 
 			new SwerveModuleState(modules[1].getDriveVelocity(), new Rotation2d(modules[1].getSteerAngle())), 
-			new SwerveModuleState(modules[3].getDriveVelocity(), new Rotation2d(modules[3].getSteerAngle())),
-			new SwerveModuleState(modules[2].getDriveVelocity(), new Rotation2d(modules[2].getSteerAngle()))
+			new SwerveModuleState(modules[2].getDriveVelocity(), new Rotation2d(modules[2].getSteerAngle())),
+			new SwerveModuleState(modules[3].getDriveVelocity(), new Rotation2d(modules[3].getSteerAngle()))
 		);
 
 
