@@ -16,17 +16,23 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.AutoConstants;
+import frc.robot.Constants.Drivetrain;
 
 import static frc.robot.Constants.Drivetrain.*;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 public class DrivetrainSubsystem extends SubsystemBase {
 	/**
@@ -41,33 +47,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
 	//  By default this value is setup for a Mk4 standard module using Falcon500s to drive.
 	//  An example of this constant for a Mk4 L2 module with NEOs to drive is:
 	//   5880.0 / 60.0 / SdsModuleConfigurations.MK4_L2.getDriveReduction() * SdsModuleConfigurations.MK4_L2.getWheelDiameter() * Math.PI
-	/**
-	 * The maximum velocity of the robot in meters per second.
-	 * <p>
-	 * This is a measure of how fast the robot should be able to drive in a straight line.
-	 */
-	public static final double MAX_VELOCITY_METERS_PER_SECOND = 6380.0 / 60.0 *
-		SdsModuleConfigurations.MK4_L1.getDriveReduction() *
-		SdsModuleConfigurations.MK4_L1.getWheelDiameter() * Math.PI;
-	/**
-	 * The maximum angular velocity of the robot in radians per second.
-	 * <p>
-	 * This is a measure of how fast the robot can rotate in place.
-	 */
-	// Here we calculate the theoretical maximum angular velocity. You can also replace this with a measured amount.
-	public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND /
-		Math.hypot(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
-
-	private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
-		// Front left
-		new Translation2d(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0),
-		// Front right
-		new Translation2d(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DRIVETRAIN_WHEELBASE_METERS / 2.0),
-		// Back left
-		new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0),
-		// Back right
-		new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DRIVETRAIN_WHEELBASE_METERS / 2.0)
-	);
+	
+	SwerveDriveKinematics kinematics = Drivetrain.kinematics;
 
 	// By default we use a Pigeon for our gyroscope. But if you use another gyroscope, like a NavX, you can change this.
 	// The important thing about how you configure your gyroscope is that rotating the robot counter-clockwise should
@@ -85,6 +66,20 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
 	private final double[] lastAngles;
 
+    TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
+            AutoConstants.kMaxSpeedMetersPerSecond,
+            AutoConstants.kMaxAccelerationMetersPerSecondSquared)
+                    .setKinematics(Drivetrain.kinematics);
+
+    // 2. Generate trajectory
+    Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
+            new Pose2d(5, 5, new Rotation2d(0)),
+            List.of(
+                    new Translation2d(6, 5),
+                    new Translation2d(6, 4)),
+            new Pose2d(7, 4, Rotation2d.fromDegrees(180)),
+            trajectoryConfig);
+			
 	private ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 	private final Field2d m_field = new Field2d();
 
@@ -94,6 +89,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
 		// tab.add("Field", m_field);
 		SmartDashboard.putData("Field", m_field);
 		
+		m_field.getObject("traj").setTrajectory(trajectory);
+
 		modules = new SwerveModule[4];
 		lastAngles = new double[4];
 
@@ -190,9 +187,25 @@ public class DrivetrainSubsystem extends SubsystemBase {
 		chassisSpeeds = new_ChassisSpeeds;
 	}
 
+	public void stop() {
+		for (int i = 0; i < 4; i++) {
+			modules[i].set(0, 0);
+		}
+	}
+
 	private void setModule(int i, double driveVoltage, double steerAngle) {
 		modules[i].set(driveVoltage, steerAngle);
 		lastAngles[i] = steerAngle;
+	}
+
+	/** Only really used for auto*/
+	public void setModuleStates(SwerveModuleState[] desiredStates) {
+		SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, Drivetrain.MAX_VELOCITY_METERS_PER_SECOND);
+		for (int i = 0; i < 4; i++) {
+			setModule(i, 
+			desiredStates[i].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, 
+			desiredStates[i].angle.getRadians());
+		}
 	}
 
 	@Override
@@ -206,7 +219,9 @@ public class DrivetrainSubsystem extends SubsystemBase {
 		} else {
 			SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND); //changed normalizeWheelSpeeds to desaturateWheelSpeeds
 			for (int i = 0; i < 4; i++) {
-				setModule(i, states[i].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[i].angle.getRadians());
+				setModule(i, 
+				states[i].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, 
+				states[i].angle.getRadians());
 			}
 		}
 
