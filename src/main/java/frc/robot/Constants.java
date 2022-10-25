@@ -64,6 +64,7 @@ public final class Constants {
             // Back right
             new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DRIVETRAIN_WHEELBASE_METERS / 2.0)
         );
+        public static final String CANIVORE_DRIVETRAIN = "Canivore";
         public static final int DRIVETRAIN_PIGEON_ID = 0;
 
         public static final int FL_DRIVE_MOTOR_ID = 1;
