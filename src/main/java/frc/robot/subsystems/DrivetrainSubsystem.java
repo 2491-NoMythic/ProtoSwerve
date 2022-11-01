@@ -54,7 +54,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 	// By default we use a Pigeon for our gyroscope. But if you use another gyroscope, like a NavX, you can change this.
 	// The important thing about how you configure your gyroscope is that rotating the robot counter-clockwise should
 	// cause the angle reading to increase until it wraps back over to zero.
-	private final Pigeon2 pigeon = new Pigeon2(DRIVETRAIN_PIGEON_ID, CANIVORE_DRIVETRAIN);
+	private final Pigeon2 pigeon = new Pigeon2(DRIVETRAIN_PIGEON_ID);
 
 	/**
 	 * These are our modules. We initialize them in the constructor.
