@@ -5,8 +5,8 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.Pigeon2;
+import com.swervedrivespecialties.swervelib.Mk4ModuleConfiguration;
 import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
-import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
 import com.swervedrivespecialties.swervelib.SwerveModule;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -53,7 +53,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 	// By default we use a Pigeon for our gyroscope. But if you use another gyroscope, like a NavX, you can change this.
 	// The important thing about how you configure your gyroscope is that rotating the robot counter-clockwise should
 	// cause the angle reading to increase until it wraps back over to zero.
-	private final Pigeon2 pigeon = new Pigeon2(DRIVETRAIN_PIGEON_ID);
+	private final Pigeon2 pigeon = new Pigeon2(DRIVETRAIN_PIGEON_ID, CANIVORE_DRIVETRAIN);
 
 	/**
 	 * These are our modules. We initialize them in the constructor.
@@ -90,15 +90,23 @@ public class DrivetrainSubsystem extends SubsystemBase {
 		SmartDashboard.putData("Field", m_field);
 		
 		m_field.getObject("traj").setTrajectory(trajectory);
+		
+		Mk4ModuleConfiguration config = new Mk4ModuleConfiguration();
+		config.setCanivoreName(CANIVORE_DRIVETRAIN);
 
 		modules = new SwerveModule[4];
 		lastAngles = new double[4];
-
+		if (config.useCanivore()) {
+			System.out.println("yss");
+		} else {
+			System.out.println("noooo");
+		}
 		modules[0] = Mk4SwerveModuleHelper.createFalcon500(
 			// This parameter is optional, but will allow you to see the current state of the module on the dashboard.
 			tab.getLayout("Front Left Module", BuiltInLayouts.kList)
 				.withSize(2, 4)
 				.withPosition(0, 0),
+			config,
 			// This can either be STANDARD or FAST depending on your gear configuration
 			Mk4SwerveModuleHelper.GearRatio.L1,// FIXME find the actual gear ratio
 			// This is the ID of the drive motor
@@ -116,6 +124,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 			tab.getLayout("Front Right Module", BuiltInLayouts.kList)
 				.withSize(2, 4)
 				.withPosition(2, 0),
+			config,
 			Mk4SwerveModuleHelper.GearRatio.L1,// FIXME find the actual gear ratio
 			FR_DRIVE_MOTOR_ID,
 			FR_STEER_MOTOR_ID,
@@ -127,6 +136,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 			tab.getLayout("Back Left Module", BuiltInLayouts.kList)
 				.withSize(2, 4)
 				.withPosition(4, 0),
+			config,	
 			Mk4SwerveModuleHelper.GearRatio.L1,// FIXME find the actual gear ratio
 			BL_DRIVE_MOTOR_ID,
 			BL_STEER_MOTOR_ID,
@@ -138,6 +148,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 			tab.getLayout("Back Right Module", BuiltInLayouts.kList)
 				.withSize(2, 4)
 				.withPosition(6, 0),
+			config,
 			Mk4SwerveModuleHelper.GearRatio.L1,// FIXME find the actual gear ratio
 			BR_DRIVE_MOTOR_ID,
 			BR_STEER_MOTOR_ID,

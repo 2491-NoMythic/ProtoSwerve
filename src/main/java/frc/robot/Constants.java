@@ -64,6 +64,8 @@ public final class Constants {
             // Back right
             new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DRIVETRAIN_WHEELBASE_METERS / 2.0)
         );
+
+        public static final String CANIVORE_DRIVETRAIN = "Swerve";
         public static final int DRIVETRAIN_PIGEON_ID = 0;
 
         public static final int FL_DRIVE_MOTOR_ID = 1;
@@ -78,12 +80,12 @@ public final class Constants {
 
         public static final int BR_DRIVE_MOTOR_ID = 5;
         public static final int BR_STEER_MOTOR_ID = 6;
-        public static final int BR_STEER_ENCODER_ID = 3;
+        public static final int BR_STEER_ENCODER_ID = 4;
         public static final double BR_STEER_OFFSET = -Math.toRadians(110.21);
 
         public static final int BL_DRIVE_MOTOR_ID = 7;
         public static final int BL_STEER_MOTOR_ID = 8;
-        public static final int BL_STEER_ENCODER_ID = 4;
+        public static final int BL_STEER_ENCODER_ID = 3;
         public static final double BL_STEER_OFFSET = -Math.toRadians(63.54);
 
 
