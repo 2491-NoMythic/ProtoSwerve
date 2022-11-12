@@ -6,7 +6,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.Pigeon2;
 import com.swervedrivespecialties.swervelib.Mk4ModuleConfiguration;
-import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
+import com.swervedrivespecialties.swervelib.Mk4iSwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SwerveModule;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -101,14 +101,14 @@ public class DrivetrainSubsystem extends SubsystemBase {
 		} else {
 			System.out.println("noooo");
 		}
-		modules[0] = Mk4SwerveModuleHelper.createFalcon500(
+		modules[0] = Mk4iSwerveModuleHelper.createFalcon500(
 			// This parameter is optional, but will allow you to see the current state of the module on the dashboard.
 			tab.getLayout("Front Left Module", BuiltInLayouts.kList)
 				.withSize(2, 4)
 				.withPosition(0, 0),
 			config,
 			// This can either be STANDARD or FAST depending on your gear configuration
-			Mk4SwerveModuleHelper.GearRatio.L1,// FIXME find the actual gear ratio
+			Mk4iSwerveModuleHelper.GearRatio.L1,// FIXME find the actual gear ratio
 			// This is the ID of the drive motor
 			FL_DRIVE_MOTOR_ID,
 			// This is the ID of the steer motor
@@ -120,36 +120,36 @@ public class DrivetrainSubsystem extends SubsystemBase {
 		);
 
 		// We will do the same for the other modules
-		modules[1] = Mk4SwerveModuleHelper.createFalcon500(
+		modules[1] = Mk4iSwerveModuleHelper.createFalcon500(
 			tab.getLayout("Front Right Module", BuiltInLayouts.kList)
 				.withSize(2, 4)
 				.withPosition(2, 0),
 			config,
-			Mk4SwerveModuleHelper.GearRatio.L1,// FIXME find the actual gear ratio
+			Mk4iSwerveModuleHelper.GearRatio.L1,// FIXME find the actual gear ratio
 			FR_DRIVE_MOTOR_ID,
 			FR_STEER_MOTOR_ID,
 			FR_STEER_ENCODER_ID,
 			FR_STEER_OFFSET
 		);
 
-		modules[2] = Mk4SwerveModuleHelper.createFalcon500(
+		modules[2] = Mk4iSwerveModuleHelper.createFalcon500(
 			tab.getLayout("Back Left Module", BuiltInLayouts.kList)
 				.withSize(2, 4)
 				.withPosition(4, 0),
 			config,	
-			Mk4SwerveModuleHelper.GearRatio.L1,// FIXME find the actual gear ratio
+			Mk4iSwerveModuleHelper.GearRatio.L1,// FIXME find the actual gear ratio
 			BL_DRIVE_MOTOR_ID,
 			BL_STEER_MOTOR_ID,
 			BL_STEER_ENCODER_ID,
 			BL_STEER_OFFSET
 		);
 
-		modules[3] = Mk4SwerveModuleHelper.createFalcon500(
+		modules[3] = Mk4iSwerveModuleHelper.createFalcon500(
 			tab.getLayout("Back Right Module", BuiltInLayouts.kList)
 				.withSize(2, 4)
 				.withPosition(6, 0),
 			config,
-			Mk4SwerveModuleHelper.GearRatio.L1,// FIXME find the actual gear ratio
+			Mk4iSwerveModuleHelper.GearRatio.L1,// FIXME find the actual gear ratio
 			BR_DRIVE_MOTOR_ID,
 			BR_STEER_MOTOR_ID,
 			BR_STEER_ENCODER_ID,
