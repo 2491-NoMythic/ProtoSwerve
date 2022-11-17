@@ -145,7 +145,9 @@ public class RobotContainer {
 
     return value;
   }
-
+  public void robotInit() {
+    drivetrain.zeroGyroscope();
+  }
   public void teleopInit() {
     drivetrain.pointWheelsForward();
   }
