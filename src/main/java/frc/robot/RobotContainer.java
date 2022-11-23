@@ -55,9 +55,9 @@ public class RobotContainer {
       drivetrain,
       () -> controller.getL1Button(),
       () -> controller.getR1Button(),
-      () -> modifyAxis(-controller.getRawAxis(X_AXES), DEADBAND_NORMAL),
-      () -> modifyAxis(-controller.getRawAxis(Y_AXES), DEADBAND_NORMAL),
-      () -> modifyAxis(-controller.getRawAxis(Z_AXES), DEADBAND_NORMAL),
+      () -> modifyAxis(-controller.getRawAxis(X_AXIS), DEADBAND_NORMAL),
+      () -> modifyAxis(-controller.getRawAxis(Y_AXIS), DEADBAND_NORMAL),
+      () -> modifyAxis(-controller.getRawAxis(Z_AXIS), DEADBAND_NORMAL),
       () -> getJoystickDegrees());
 
     drivetrain.setDefaultCommand(defaultDriveCommand);
@@ -66,7 +66,7 @@ public class RobotContainer {
     configureButtonBindings();
   }
   private double getJoystickDegrees() {
-    double zAxis = modifyAxis(-controller.getRawAxis(Z_AXES), DEADBAND_LARGE);
+    double zAxis = modifyAxis(-controller.getRawAxis(Z_AXIS), DEADBAND_LARGE);
     double zRotate = modifyAxis(-controller.getRawAxis(Z_ROTATE), DEADBAND_LARGE);
     if (zAxis + zRotate != 0) {
       return Math.toDegrees(Math.atan2(zAxis, zRotate));
