@@ -54,16 +54,25 @@ public class RobotContainer {
     defaultDriveCommand = new Drive(
       drivetrain,
       () -> controller.getL1Button(),
-      () -> modifyAxis(-controller.getRawAxis(X_AXES)) * Drivetrain.MAX_VELOCITY_METERS_PER_SECOND,
-      () -> modifyAxis(-controller.getRawAxis(Y_AXES)) * Drivetrain.MAX_VELOCITY_METERS_PER_SECOND,
-      () -> modifyAxis(-controller.getRawAxis(Z_AXES)) * Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND);
+      () -> controller.getR1Button(),
+      () -> modifyAxis(-controller.getRawAxis(X_AXES), DEADBAND_NORMAL),
+      () -> modifyAxis(-controller.getRawAxis(Y_AXES), DEADBAND_NORMAL),
+      () -> modifyAxis(-controller.getRawAxis(Z_AXES), DEADBAND_NORMAL),
+      () -> getJoystickDegrees());
 
     drivetrain.setDefaultCommand(defaultDriveCommand);
 
     // Configure the button bindings
     configureButtonBindings();
   }
-
+  private double getJoystickDegrees() {
+    double zAxis = modifyAxis(-controller.getRawAxis(Z_AXES), DEADBAND_LARGE);
+    double zRotate = modifyAxis(-controller.getRawAxis(Z_ROTATE), DEADBAND_LARGE);
+    if (zAxis + zRotate != 0) {
+      return Math.toDegrees(Math.atan2(zAxis, zRotate));
+    }
+    return NO_INPUT;
+  }
   /**
    * Use this method to define your button->command mappings. Buttons can be created by
    * instantiating a {@link GenericHID} or one of its subclasses ({@link
@@ -136,9 +145,9 @@ public class RobotContainer {
     }
   }
 
-  private static double modifyAxis(double value) {
+  private static double modifyAxis(double value, double deadband) {
     // Deadband
-    value = deadband(value, 0.05);
+    value = deadband(value, deadband);
 
     // Square the axis
     value = Math.copySign(value * value, value);

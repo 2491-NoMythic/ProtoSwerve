@@ -103,8 +103,12 @@ public final class Constants {
         public static final int Y_AXES = 0;
         /**Right Stick Tilt Left/Right*/
         public static final int Z_AXES = 2;
+        public static final int Z_ROTATE = 5;
         public static final int SLIDER_AXES = 3;
         public static final int TRIGGER_BUTTON = 0;
+        public static final double NO_INPUT = 404;
+        public static final double DEADBAND_NORMAL = 0.05;
+        public static final double DEADBAND_LARGE = 0.1;
     }
     
     public static final class AutoConstants {
