@@ -20,13 +20,6 @@ public class Drive extends CommandBase {
     private final DoubleSupplier rotationSupplier;
     private final DoubleSupplier turnSupplier;
     private final PIDController turnController;
-    static final double kP = 0.03;
-    static final double kI = 0.00;
-    static final double kD = 0.00;
-
-    /* This tuning parameter indicates how close to "on target" the    */
-    /* PID Controller will attempt to get.                             */
-    static final double kToleranceDegrees = 1.0;
     
     public Drive(DrivetrainSubsystem drivetrainSubsystem,
     BooleanSupplier robotCentricMode,
@@ -42,10 +35,10 @@ public class Drive extends CommandBase {
         this.translationYSupplier = translationYSupplier;
         this.rotationSupplier = rotationSupplier;
         this.turnSupplier = turnSupplier;
-        turnController = new PIDController(kP, kI, kD);
+        turnController = new PIDController(Drivetrain.K_TURN_P, Drivetrain.K_TURN_I, Drivetrain.K_TURN_D);
         turnController.enableContinuousInput(-180.0, 180.0);
-        turnController.setTolerance(kToleranceDegrees, 5);
-        SmartDashboard.putData(turnController);
+        turnController.setTolerance(Drivetrain.K_TURN_TOLORANCE_DEGREES, Drivetrain.K_TURN_TOLORANCE_DEG_PER_SEC);
+        
         addRequirements(drivetrainSubsystem);
     }
 

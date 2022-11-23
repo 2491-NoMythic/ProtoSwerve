@@ -88,10 +88,15 @@ public final class Constants {
         public static final int BR_STEER_ENCODER_ID = 4;
         public static final double BR_STEER_OFFSET = -Math.toRadians(38.5);
 
-
-
         public static final double K_MAX_SPEED = 3.0; // 3 meters per second
-        public static final double K_MAX_ANGULAR_SPEED = Math.PI; // 1/2 rotation per second
+        public static final double K_MAX_ANGULAR_SPEED = Math.PI; // 1/2 radians rotation per second
+
+        public static final double K_TURN_P = 0.03;
+        public static final double K_TURN_I = 0.0;
+        public static final double K_TURN_D = 0.0;
+        /** This tuning parameter indicates how close to "on target" the PID Controller will attempt to get.*/
+        public static final double K_TURN_TOLORANCE_DEGREES = 2.0;
+        public static final double K_TURN_TOLORANCE_DEG_PER_SEC = 10;
         }
     public final class PS4 {
         private PS4() {
