@@ -78,7 +78,7 @@ public class RobotContainer {
   private double getJoystickMagnitude(int horizontalAxis, int verticalAxis) {
   double xAxis = deadband(-controller.getRawAxis(horizontalAxis), DEADBAND_NORMAL);
   double yAxis = deadband(-controller.getRawAxis(verticalAxis), DEADBAND_NORMAL);
-  return (Math.sqrt(Math.pow(xAxis, 2) + Math.pow(yAxis, 2)));
+  return Math.min(1.0, (Math.sqrt(Math.pow(xAxis, 2) + Math.pow(yAxis, 2)))); // make sure the number is not greater than 1
   }
   /**
    * Use this method to define your button->command mappings. Buttons can be created by
