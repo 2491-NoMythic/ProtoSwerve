@@ -58,8 +58,8 @@ public class RobotContainer {
       () -> modifyAxis(-controller.getRawAxis(X_AXIS), DEADBAND_NORMAL),
       () -> modifyAxis(-controller.getRawAxis(Y_AXIS), DEADBAND_NORMAL),
       () -> modifyAxis(-controller.getRawAxis(Z_AXIS), DEADBAND_NORMAL),
-      () -> getJoystickDegrees(Z_AXIS, Z_ROTATE));
-
+      () -> getJoystickDegrees(Z_AXIS, Z_ROTATE),
+      () -> getJoystickMagnitude(Z_AXIS, Z_ROTATE));
     drivetrain.setDefaultCommand(defaultDriveCommand);
 
     // Configure the button bindings
@@ -73,6 +73,12 @@ public class RobotContainer {
       return Math.toDegrees(Math.atan2(xAxis, yAxis));
     }
     return NO_INPUT;
+  }
+  /**Takes both axis of a joystick, returns a double from 0-1 */
+  private double getJoystickMagnitude(int horizontalAxis, int verticalAxis) {
+  double xAxis = deadband(-controller.getRawAxis(horizontalAxis), DEADBAND_NORMAL);
+  double yAxis = deadband(-controller.getRawAxis(verticalAxis), DEADBAND_NORMAL);
+  return (Math.sqrt(Math.pow(xAxis, 2) + Math.pow(yAxis, 2)));
   }
   /**
    * Use this method to define your button->command mappings. Buttons can be created by

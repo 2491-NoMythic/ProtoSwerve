@@ -19,6 +19,7 @@ public class Drive extends CommandBase {
     private final DoubleSupplier translationYSupplier;
     private final DoubleSupplier rotationSupplier;
     private final DoubleSupplier turnSupplier;
+    private final DoubleSupplier rightStickMagnitudeSupplier;
     private final PIDController turnController;
     
     public Drive(DrivetrainSubsystem drivetrainSubsystem,
@@ -27,7 +28,8 @@ public class Drive extends CommandBase {
     DoubleSupplier translationXSupplier,
     DoubleSupplier translationYSupplier,
     DoubleSupplier rotationSupplier,
-    DoubleSupplier turnSupplier) {
+    DoubleSupplier turnSupplier,
+    DoubleSupplier rightStickMagnitudeSupplier) {
         this.drivetrain = drivetrainSubsystem;
         this.robotCentricMode = robotCentricMode;
         this.fieldCentricRotateMode = fieldCentricRotateMode;
@@ -35,6 +37,7 @@ public class Drive extends CommandBase {
         this.translationYSupplier = translationYSupplier;
         this.rotationSupplier = rotationSupplier;
         this.turnSupplier = turnSupplier;
+        this.rightStickMagnitudeSupplier = rightStickMagnitudeSupplier;
         turnController = new PIDController(Drivetrain.K_TURN_P, Drivetrain.K_TURN_I, Drivetrain.K_TURN_D);
         turnController.enableContinuousInput(-180.0, 180.0);
         turnController.setTolerance(Drivetrain.K_TURN_TOLORANCE_DEGREES, Drivetrain.K_TURN_TOLORANCE_DEG_PER_SEC);
