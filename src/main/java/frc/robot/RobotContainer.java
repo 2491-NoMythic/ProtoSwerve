@@ -58,18 +58,19 @@ public class RobotContainer {
       () -> modifyAxis(-controller.getRawAxis(X_AXIS), DEADBAND_NORMAL),
       () -> modifyAxis(-controller.getRawAxis(Y_AXIS), DEADBAND_NORMAL),
       () -> modifyAxis(-controller.getRawAxis(Z_AXIS), DEADBAND_NORMAL),
-      () -> getJoystickDegrees());
+      () -> getJoystickDegrees(Z_AXIS, Z_ROTATE));
 
     drivetrain.setDefaultCommand(defaultDriveCommand);
 
     // Configure the button bindings
     configureButtonBindings();
   }
-  private double getJoystickDegrees() {
-    double zAxis = modifyAxis(-controller.getRawAxis(Z_AXIS), DEADBAND_LARGE);
-    double zRotate = modifyAxis(-controller.getRawAxis(Z_ROTATE), DEADBAND_LARGE);
-    if (zAxis + zRotate != 0) {
-      return Math.toDegrees(Math.atan2(zAxis, zRotate));
+  /**Takes both axis of a joystick, returns an angle from -180 to 180 degrees, or {@link Constants.PS4.NO_INPUT} (double = 404.0) if the joystick is at rest position*/
+  private double getJoystickDegrees(int horizontalAxis, int verticalAxis) {
+    double xAxis = deadband(-controller.getRawAxis(horizontalAxis), DEADBAND_LARGE);
+    double yAxis = deadband(-controller.getRawAxis(verticalAxis), DEADBAND_LARGE);
+    if (xAxis + yAxis != 0) {
+      return Math.toDegrees(Math.atan2(xAxis, yAxis));
     }
     return NO_INPUT;
   }
