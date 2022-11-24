@@ -59,7 +59,7 @@ public class Drive extends CommandBase {
                 ChassisSpeeds.fromFieldRelativeSpeeds(
                     translationXSupplier.getAsDouble() * Drivetrain.MAX_VELOCITY_METERS_PER_SECOND,
                     translationYSupplier.getAsDouble() * Drivetrain.MAX_VELOCITY_METERS_PER_SECOND,
-                    MathUtil.clamp(turnController.calculate(drivetrain.getGyroscopeRotation().getDegrees(), turnSupplier.getAsDouble()), -1, 1) * Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
+                    rightStickMagnitudeSupplier.getAsDouble() * (MathUtil.clamp(turnController.calculate(drivetrain.getGyroscopeRotation().getDegrees(), turnSupplier.getAsDouble()), -1, 1) * Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND),
                     drivetrain.getGyroscopeRotation()
                 )
             );
