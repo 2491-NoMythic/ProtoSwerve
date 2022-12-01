@@ -91,7 +91,7 @@ public final class Constants {
         public static final double K_MAX_SPEED = 3.0; // 3 meters per second
         public static final double K_MAX_ANGULAR_SPEED = Math.PI; // 1/2 radians rotation per second
 
-        public static final double K_TURN_P = 0.03;
+        public static final double K_TURN_P = 0.015;
         public static final double K_TURN_I = 0.0;
         public static final double K_TURN_D = 0.0;
         /** This tuning parameter indicates how close to "on target" the PID Controller will attempt to get.*/
