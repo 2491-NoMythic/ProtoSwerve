@@ -10,6 +10,7 @@ import java.util.List;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PS4Controller;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -42,10 +43,15 @@ public class RobotContainer {
   private final Drive defaultDriveCommand;
   private final PS4Controller controller = new PS4Controller(0);
 
-  /**
-   * The container for the robot. Contains subsystems, OI devices, and commands.
-   */
-  public RobotContainer() {
+    
+    /**
+     * The container for the robot. Contains subsystems, OI devices, and commands.
+     */
+    public RobotContainer() {
+    // SmartDashboard.putData("xController", xController);
+    // SmartDashboard.putData("yController", yController);
+    // SmartDashboard.putData("thetaController", thetaController);
+
     // Set up the default command for the drivetrain.
     // The controls are for field-oriented driving:
     // Left stick Y axis -> forward and backwards movement
@@ -60,35 +66,40 @@ public class RobotContainer {
       () -> modifyAxis(-controller.getRawAxis(Z_AXIS), DEADBAND_NORMAL),
       () -> getJoystickDegrees(Z_AXIS, Z_ROTATE),
       () -> getJoystickMagnitude(Z_AXIS, Z_ROTATE));
-    drivetrain.setDefaultCommand(defaultDriveCommand);
-
-    // Configure the button bindings
-    configureButtonBindings();
-  }
-  /**Takes both axis of a joystick, returns an angle from -180 to 180 degrees, or {@link Constants.PS4.NO_INPUT} (double = 404.0) if the joystick is at rest position*/
-  private double getJoystickDegrees(int horizontalAxis, int verticalAxis) {
-    double xAxis = deadband(-controller.getRawAxis(horizontalAxis), DEADBAND_LARGE);
-    double yAxis = deadband(-controller.getRawAxis(verticalAxis), DEADBAND_LARGE);
-    if (xAxis + yAxis != 0) {
-      return Math.toDegrees(Math.atan2(xAxis, yAxis));
+      drivetrain.setDefaultCommand(defaultDriveCommand);
+      SmartDashboard.putNumber("kPxy", 1.5);
+      SmartDashboard.putNumber("kIxy", 0);
+      SmartDashboard.putNumber("kDxy", 0);
+      SmartDashboard.putNumber("kPtheta", 3);
+      SmartDashboard.putNumber("kItheta", 0);
+      SmartDashboard.putNumber("kDtheta", 0);
+      // Configure the button bindings
+      configureButtonBindings();
     }
-    return NO_INPUT;
-  }
-  /**Takes both axis of a joystick, returns a double from 0-1 */
-  private double getJoystickMagnitude(int horizontalAxis, int verticalAxis) {
-  double xAxis = deadband(-controller.getRawAxis(horizontalAxis), DEADBAND_NORMAL);
-  double yAxis = deadband(-controller.getRawAxis(verticalAxis), DEADBAND_NORMAL);
-  return Math.min(1.0, (Math.sqrt(Math.pow(xAxis, 2) + Math.pow(yAxis, 2)))); // make sure the number is not greater than 1
-  }
-  /**
-   * Use this method to define your button->command mappings. Buttons can be created by
-   * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link PS4Controller}), and then passing it to a {@link
-   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
-   */
-  private void configureButtonBindings() {
-    // Back button zeros the gyroscope
-    // new Button(() -> controller.getRawButton(13)).whenPressed(drivetrain::zeroGyroscope);
+    /**Takes both axis of a joystick, returns an angle from -180 to 180 degrees, or {@link Constants.PS4.NO_INPUT} (double = 404.0) if the joystick is at rest position*/
+    private double getJoystickDegrees(int horizontalAxis, int verticalAxis) {
+      double xAxis = deadband(-controller.getRawAxis(horizontalAxis), DEADBAND_LARGE);
+      double yAxis = deadband(-controller.getRawAxis(verticalAxis), DEADBAND_LARGE);
+      if (xAxis + yAxis != 0) {
+        return Math.toDegrees(Math.atan2(xAxis, yAxis));
+      }
+      return NO_INPUT;
+    }
+    /**Takes both axis of a joystick, returns a double from 0-1 */
+    private double getJoystickMagnitude(int horizontalAxis, int verticalAxis) {
+      double xAxis = deadband(-controller.getRawAxis(horizontalAxis), DEADBAND_NORMAL);
+      double yAxis = deadband(-controller.getRawAxis(verticalAxis), DEADBAND_NORMAL);
+      return Math.min(1.0, (Math.sqrt(Math.pow(xAxis, 2) + Math.pow(yAxis, 2)))); // make sure the number is not greater than 1
+    }
+    /**
+     * Use this method to define your button->command mappings. Buttons can be created by
+     * instantiating a {@link GenericHID} or one of its subclasses ({@link
+     * edu.wpi.first.wpilibj.Joystick} or {@link PS4Controller}), and then passing it to a {@link
+     * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
+     */
+    private void configureButtonBindings() {
+      // Back button zeros the gyroscope
+      // new Button(() -> controller.getRawButton(13)).whenPressed(drivetrain::zeroGyroscope);
     new Button(controller::getPSButton)
             // No requirements because we don't need to interrupt anything
             .whenPressed(drivetrain::zeroGyroscope);
@@ -116,13 +127,12 @@ public class RobotContainer {
             trajectoryConfig);
 
     // 3. Define PID controllers for tracking trajectory
-    PIDController xController = new PIDController(AutoConstants.kPXController, 0, 0);
-    PIDController yController = new PIDController(AutoConstants.kPYController, 0, 0);
+    PIDController xController = new PIDController(SmartDashboard.getNumber("kPxy", 1.5), SmartDashboard.getNumber("kIxy", 0), SmartDashboard.getNumber("kDxy", 0));
+    PIDController yController = new PIDController(SmartDashboard.getNumber("kPxy", 1.5), SmartDashboard.getNumber("kIxy", 0), SmartDashboard.getNumber("kDxy", 0));
     ProfiledPIDController thetaController = new ProfiledPIDController(
-            AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
-    thetaController.enableContinuousInput(-Math.PI, Math.PI);
-
-    // 4. Construct command to follow trajectory
+      SmartDashboard.getNumber("kPtheta", 3), SmartDashboard.getNumber("kItheta", 0), SmartDashboard.getNumber("kDtheta", 0), AutoConstants.kThetaControllerConstraints);
+      thetaController.enableContinuousInput(-Math.PI, Math.PI);
+      // 4. Construct command to follow trajectory
     SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
             trajectory,
             drivetrain::getPose,
