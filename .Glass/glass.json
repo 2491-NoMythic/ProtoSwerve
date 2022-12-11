@@ -1,0 +1,46 @@
+{
+  "NetworkTables": {
+    "Shuffleboard": {
+      "open": true
+    },
+    "SmartDashboard": {
+      "open": true
+    },
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
+      "/SmartDashboard/Field": "Field2d"
+    },
+    "windows": {
+      "/SmartDashboard/Field": {
+        "Robot": {
+          "arrowColor": [
+            255.0,
+            0.0,
+            0.0,
+            255.0
+          ],
+          "color": [
+            0.0656680166721344,
+            0.37777775526046753,
+            0.04337448254227638,
+            255.0
+          ],
+          "style": "Track"
+        },
+        "height": 6.0,
+        "traj": {
+          "style": "Track"
+        },
+        "width": 5.0,
+        "window": {
+          "visible": true
+        }
+      }
+    }
+  },
+  "NetworkTables Settings": {
+    "mode": "Client",
+    "serverTeam": "2491"
+  }
+}
