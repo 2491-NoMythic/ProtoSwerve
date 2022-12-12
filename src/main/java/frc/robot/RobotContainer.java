@@ -152,6 +152,7 @@ public class RobotContainer {
   public void robotInit() {
     drivetrain.zeroGyroscope();
     autoChooser.setDefaultOption("Basic Auto", new BasicAuto(xController, yController, thetaController, drivetrain));
+    autoChooser.addOption("2 meters, rotate 180", new ForwardsTurn180(xController, yController, thetaController, drivetrain));
   }
   public void teleopInit() {
     drivetrain.pointWheelsForward();
