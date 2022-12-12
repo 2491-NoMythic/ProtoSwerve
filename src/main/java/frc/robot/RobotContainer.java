@@ -87,6 +87,8 @@ public class RobotContainer {
     SmartDashboard.setPersistent("kItheta");
     SmartDashboard.setPersistent("kDtheta");
     SmartDashboard.putData("Auto Chooser", autoChooser);
+    SmartDashboard.putData("Basic Auto", new BasicAuto(xController, yController, thetaController, drivetrain));
+    SmartDashboard.putData("Forward Turn Auto", new ForwardsTurn180(xController, yController, thetaController, drivetrain));
     // Configure the button bindings
     configureButtonBindings();
   }
