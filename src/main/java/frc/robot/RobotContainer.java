@@ -19,7 +19,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
@@ -46,7 +45,6 @@ public class RobotContainer {
   private final SendableChooser<Command> autoChooser;
   private final PS4Controller controller = new PS4Controller(0);
   
-  public TrajectoryConfig trajectoryConfig;
   public PIDController xController;
   public PIDController yController;
   public ProfiledPIDController thetaController;
@@ -153,16 +151,12 @@ public class RobotContainer {
   }
   public void robotInit() {
     drivetrain.zeroGyroscope();
-    autoChooser.setDefaultOption("Basic Auto", new BasicAuto(trajectoryConfig, xController, yController, thetaController, drivetrain));
+    autoChooser.setDefaultOption("Basic Auto", new BasicAuto(xController, yController, thetaController, drivetrain));
   }
   public void teleopInit() {
     drivetrain.pointWheelsForward();
   }
   public void autoInit() {
-    trajectoryConfig = new TrajectoryConfig(
-      AutoConstants.kMaxSpeedMetersPerSecond,
-      AutoConstants.kMaxAccelerationMetersPerSecondSquared)
-        .setKinematics(Drivetrain.kinematics);
     xController = new PIDController(
       SmartDashboard.getNumber("kPxy", 1.5),
       SmartDashboard.getNumber("kIxy", 0),
