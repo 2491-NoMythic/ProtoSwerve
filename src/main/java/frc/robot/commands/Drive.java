@@ -3,7 +3,7 @@ package frc.robot.commands;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants.Drivetrain;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.PS4;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import edu.wpi.first.math.MathUtil;
@@ -38,9 +38,9 @@ public class Drive extends CommandBase {
         this.rotationSupplier = rotationSupplier;
         this.turnSupplier = turnSupplier;
         this.rightStickMagnitudeSupplier = rightStickMagnitudeSupplier;
-        turnController = new PIDController(Drivetrain.K_TURN_P, Drivetrain.K_TURN_I, Drivetrain.K_TURN_D);
+        turnController = new PIDController(DriveConstants.K_TURN_P, DriveConstants.K_TURN_I, DriveConstants.K_TURN_D);
         turnController.enableContinuousInput(-180.0, 180.0);
-        turnController.setTolerance(Drivetrain.K_TURN_TOLORANCE_DEGREES, Drivetrain.K_TURN_TOLORANCE_DEG_PER_SEC);
+        turnController.setTolerance(DriveConstants.K_TURN_TOLORANCE_DEGREES, DriveConstants.K_TURN_TOLORANCE_DEG_PER_SEC);
         
         addRequirements(drivetrainSubsystem);
     }
@@ -50,25 +50,25 @@ public class Drive extends CommandBase {
         // You can use `new ChassisSpeeds(...)` for robot-oriented movement instead of field-oriented movement
         if (robotCentricMode.getAsBoolean()) {
             drivetrain.drive(new ChassisSpeeds(
-                translationXSupplier.getAsDouble() * Drivetrain.MAX_VELOCITY_METERS_PER_SECOND,
-                translationYSupplier.getAsDouble() * Drivetrain.MAX_VELOCITY_METERS_PER_SECOND,
-                rotationSupplier.getAsDouble() * Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
+                translationXSupplier.getAsDouble() * DriveConstants.MAX_VELOCITY_METERS_PER_SECOND,
+                translationYSupplier.getAsDouble() * DriveConstants.MAX_VELOCITY_METERS_PER_SECOND,
+                rotationSupplier.getAsDouble() * DriveConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
             ));
         } else if (fieldCentricRotateMode.getAsBoolean() && turnSupplier.getAsDouble() != PS4.NO_INPUT) {
             drivetrain.drive(
                 ChassisSpeeds.fromFieldRelativeSpeeds(
-                    translationXSupplier.getAsDouble() * Drivetrain.MAX_VELOCITY_METERS_PER_SECOND,
-                    translationYSupplier.getAsDouble() * Drivetrain.MAX_VELOCITY_METERS_PER_SECOND,
-                    rightStickMagnitudeSupplier.getAsDouble() * (MathUtil.clamp(turnController.calculate(drivetrain.getGyroscopeRotation().getDegrees(), turnSupplier.getAsDouble()), -1, 1) * Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND),
+                    translationXSupplier.getAsDouble() * DriveConstants.MAX_VELOCITY_METERS_PER_SECOND,
+                    translationYSupplier.getAsDouble() * DriveConstants.MAX_VELOCITY_METERS_PER_SECOND,
+                    rightStickMagnitudeSupplier.getAsDouble() * (MathUtil.clamp(turnController.calculate(drivetrain.getGyroscopeRotation().getDegrees(), turnSupplier.getAsDouble()), -1, 1) * DriveConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND),
                     drivetrain.getGyroscopeRotation()
                 )
             );
         } else {
             drivetrain.drive(
                 ChassisSpeeds.fromFieldRelativeSpeeds(
-                    translationXSupplier.getAsDouble() * Drivetrain.MAX_VELOCITY_METERS_PER_SECOND,
-                    translationYSupplier.getAsDouble() * Drivetrain.MAX_VELOCITY_METERS_PER_SECOND,
-                    rotationSupplier.getAsDouble() * Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
+                    translationXSupplier.getAsDouble() * DriveConstants.MAX_VELOCITY_METERS_PER_SECOND,
+                    translationYSupplier.getAsDouble() * DriveConstants.MAX_VELOCITY_METERS_PER_SECOND,
+                    rotationSupplier.getAsDouble() * DriveConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
                     drivetrain.getGyroscopeRotation()
                 )
             );

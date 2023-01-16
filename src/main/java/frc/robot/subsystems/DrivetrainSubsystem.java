@@ -5,9 +5,6 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.Pigeon2;
-import com.swervedrivespecialties.swervelib.Mk4ModuleConfiguration;
-import com.swervedrivespecialties.swervelib.Mk4iSwerveModuleHelper;
-import com.swervedrivespecialties.swervelib.SwerveModule;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -16,6 +13,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
@@ -26,9 +24,9 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.AutoConstants;
-import frc.robot.Constants.Drivetrain;
+import frc.robot.Constants.DriveConstants;
 
-import static frc.robot.Constants.Drivetrain.*;
+import static frc.robot.Constants.DriveConstants.*;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -40,19 +38,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
 	 * <p>
 	 * This can be reduced to cap the robot's maximum speed. Typically, this is useful during initial testing of the robot.
 	 */
-	public static final double MAX_VOLTAGE = 12.0;
-	// FIXME Measure the drivetrain's maximum velocity or calculate the theoretical.
-	//  The formula for calculating the theoretical maximum velocity is:
-	//   <Motor free speed RPM> / 60 * <Drive reduction> * <Wheel diameter meters> * pi
-	//  By default this value is setup for a Mk4 standard module using Falcon500s to drive.
-	//  An example of this constant for a Mk4 L2 module with NEOs to drive is:
-	//   5880.0 / 60.0 / SdsModuleConfigurations.MK4_L2.getDriveReduction() * SdsModuleConfigurations.MK4_L2.getWheelDiameter() * Math.PI
+	public static final double MAX_VOLTAGE = 5.0;
 	
-	SwerveDriveKinematics kinematics = Drivetrain.kinematics;
+	SwerveDriveKinematics kinematics = DriveConstants.kinematics;
 
-	// By default we use a Pigeon for our gyroscope. But if you use another gyroscope, like a NavX, you can change this.
-	// The important thing about how you configure your gyroscope is that rotating the robot counter-clockwise should
-	// cause the angle reading to increase until it wraps back over to zero.
 	private final Pigeon2 pigeon = new Pigeon2(DRIVETRAIN_PIGEON_ID, CANIVORE_DRIVETRAIN);
 
 	/**
@@ -64,12 +53,12 @@ public class DrivetrainSubsystem extends SubsystemBase {
 	 */
 	private final SwerveModule[] modules;
 
-	private final double[] lastAngles;
+	private final Rotation2d[] lastAngles;
 
     TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
             AutoConstants.kMaxSpeedMetersPerSecond,
             AutoConstants.kMaxAccelerationMetersPerSecondSquared)
-                    .setKinematics(Drivetrain.kinematics);
+                    .setKinematics(DriveConstants.kinematics);
 
     // 2. Generate trajectory
     Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
@@ -84,81 +73,41 @@ public class DrivetrainSubsystem extends SubsystemBase {
 	private final Field2d m_field = new Field2d();
 
 	public DrivetrainSubsystem() {
-		ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
-		
-		// tab.add("Field", m_field);
 		SmartDashboard.putData("Field", m_field);
 		
 		m_field.getObject("traj").setTrajectory(trajectory);
-		
-		Mk4ModuleConfiguration config = new Mk4ModuleConfiguration();
-		config.setCanivoreName(CANIVORE_DRIVETRAIN);
 
 		modules = new SwerveModule[4];
-		lastAngles = new double[4];
-		if (config.useCanivore()) {
-			System.out.println("yss");
-		} else {
-			System.out.println("noooo");
-		}
-		modules[0] = Mk4iSwerveModuleHelper.createFalcon500(
-			// This parameter is optional, but will allow you to see the current state of the module on the dashboard.
-			tab.getLayout("Front Left Module", BuiltInLayouts.kList)
-				.withSize(2, 4)
-				.withPosition(0, 0),
-			config,
-			// This can either be STANDARD or FAST depending on your gear configuration
-			Mk4iSwerveModuleHelper.GearRatio.L1,// FIXME find the actual gear ratio
-			// This is the ID of the drive motor
-			FL_DRIVE_MOTOR_ID,
-			// This is the ID of the steer motor
-			FL_STEER_MOTOR_ID,
-			// This is the ID of the steer encoder
-			FL_STEER_ENCODER_ID,
-			// This is how much the steer encoder is offset from true  (In our case, zero is facing straight forward)
-			FL_STEER_OFFSET
-		);
+		lastAngles = new Rotation2d[4];
 
-		// We will do the same for the other modules
-		modules[1] = Mk4iSwerveModuleHelper.createFalcon500(
-			tab.getLayout("Front Right Module", BuiltInLayouts.kList)
-				.withSize(2, 4)
-				.withPosition(2, 0),
-			config,
-			Mk4iSwerveModuleHelper.GearRatio.L1,// FIXME find the actual gear ratio
-			FR_DRIVE_MOTOR_ID,
-			FR_STEER_MOTOR_ID,
-			FR_STEER_ENCODER_ID,
-			FR_STEER_OFFSET
-		);
-
-		modules[2] = Mk4iSwerveModuleHelper.createFalcon500(
-			tab.getLayout("Back Left Module", BuiltInLayouts.kList)
-				.withSize(2, 4)
-				.withPosition(4, 0),
-			config,	
-			Mk4iSwerveModuleHelper.GearRatio.L1,// FIXME find the actual gear ratio
-			BL_DRIVE_MOTOR_ID,
-			BL_STEER_MOTOR_ID,
-			BL_STEER_ENCODER_ID,
-			BL_STEER_OFFSET
-		);
-
-		modules[3] = Mk4iSwerveModuleHelper.createFalcon500(
-			tab.getLayout("Back Right Module", BuiltInLayouts.kList)
-				.withSize(2, 4)
-				.withPosition(6, 0),
-			config,
-			Mk4iSwerveModuleHelper.GearRatio.L1,// FIXME find the actual gear ratio
-			BR_DRIVE_MOTOR_ID,
-			BR_STEER_MOTOR_ID,
-			BR_STEER_ENCODER_ID,
-			BR_STEER_OFFSET
-		);
+		modules[0] = new SwerveModule(
+				FL_DRIVE_MOTOR_ID,
+				FL_STEER_MOTOR_ID,
+				FL_STEER_ENCODER_ID,
+				FL_STEER_OFFSET,
+				CANIVORE_DRIVETRAIN);
+		modules[1] = new SwerveModule(
+				FR_DRIVE_MOTOR_ID,
+				FR_STEER_MOTOR_ID,
+				FR_STEER_ENCODER_ID,
+				FR_STEER_OFFSET,
+				CANIVORE_DRIVETRAIN);
+		modules[2] = new SwerveModule(
+				BL_DRIVE_MOTOR_ID,
+				BL_STEER_MOTOR_ID,
+				BL_STEER_ENCODER_ID,
+				BL_STEER_OFFSET,
+				CANIVORE_DRIVETRAIN);
+		modules[3] = new SwerveModule(
+				BR_DRIVE_MOTOR_ID,
+				BR_STEER_MOTOR_ID,
+				BR_STEER_ENCODER_ID,
+				BR_STEER_OFFSET,
+				CANIVORE_DRIVETRAIN);
 	}
 
-
-	private final SwerveDriveOdometry odometer = new SwerveDriveOdometry(kinematics, getGyroscopeRotation(), new Pose2d(5.0, 5.0, new Rotation2d()));
+	
+	private final SwerveDriveOdometry odometer = new SwerveDriveOdometry(kinematics, getGyroscopeRotation(), getModulePositions(), new Pose2d(5.0, 5.0, new Rotation2d()));
 
 	/**
 	 * Sets the gyroscope angle to zero. This can be used to set the direction the robot is currently facing to the
@@ -166,7 +115,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 	 */
 	public void zeroGyroscope() {
 		pigeon.setYaw(0.0);
-		odometer.resetPosition(new Pose2d(5.0, 5.0, new Rotation2d()), new Rotation2d());
+		odometer.resetPosition(new Rotation2d(), getModulePositions(), getPose());
 	}
 
 	public Rotation2d getGyroscopeRotation() {
@@ -179,74 +128,68 @@ public class DrivetrainSubsystem extends SubsystemBase {
 	public Rotation2d getRotation2d() {
 		return Rotation2d.fromDegrees(getHeading());
 	}
-
+	public SwerveModulePosition[] getModulePositions() {
+		SwerveModulePosition[] positions = new SwerveModulePosition[4];
+		for (int i = 0; i < 4; i++) positions[i] = modules[i].getPosition();
+		return positions;
+	}
+	public SwerveModuleState[] getModuleStates() {
+		SwerveModuleState[] states = new SwerveModuleState[4];
+		for (int i = 0; i < 4; i++) states[i] = modules[i].getState();
+		return states;
+	}
 	public Pose2d getPose() {
 		return odometer.getPoseMeters();
 	}
-
     public void resetOdometry(Pose2d pose) {
-        odometer.resetPosition(pose, getRotation2d());
+        odometer.resetPosition(pose.getRotation(), getModulePositions(), pose);
     }
-	
+	/**
+	 *  Sets the modules speed and rotation to zero.
+	 */
 	public void pointWheelsForward() {
 		for (int i = 0; i < 4; i++) {
-			setModule(i, 0, 0);
+			setModule(i, new SwerveModuleState(0, new Rotation2d()));
 		}
 	}
-
 	public void drive(ChassisSpeeds new_ChassisSpeeds) {
 		chassisSpeeds = new_ChassisSpeeds;
 	}
-
+	/**
+	 * Sets all module drive speeds to 0, but leaves the wheel angles where they were.
+	 */
 	public void stop() {
 		for (int i = 0; i < 4; i++) {
-			modules[i].set(0, 0);
+			setModule(i, new SwerveModuleState(0, lastAngles[i]));
 		}
 	}
-
-	private void setModule(int i, double driveVoltage, double steerAngle) {
-		modules[i].set(driveVoltage, steerAngle);
-		lastAngles[i] = steerAngle;
-	}
-
-	/** Only really used for auto*/
 	public void setModuleStates(SwerveModuleState[] desiredStates) {
-		SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, Drivetrain.MAX_VELOCITY_METERS_PER_SECOND);
+		SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, DriveConstants.MAX_VELOCITY_METERS_PER_SECOND);
 		for (int i = 0; i < 4; i++) {
-			setModule(i, 
-			desiredStates[i].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, 
-			desiredStates[i].angle.getRadians());
+			setModule(i, desiredStates[i]);
 		}
+	}
+	private void setModule(int i, SwerveModuleState desiredState) {
+		modules[i].setDesiredState(desiredState);
+		lastAngles[i] = desiredState.angle;
 	}
 
 	@Override
 	public void periodic() {
-		SwerveModuleState[] states = kinematics.toSwerveModuleStates(chassisSpeeds);
-		double maxSpeed = Collections.max(Arrays.asList(states)).speedMetersPerSecond;
+		SwerveModuleState[] desiredStates = kinematics.toSwerveModuleStates(chassisSpeeds);
+		// FIXME test the speedMetersPerSecond values to see if we also have to check for reversed speeds, 
+		// eg. maxSpeed = 5, currentSpeed = -8
+		double maxSpeed = Collections.max(Arrays.asList(desiredStates)).speedMetersPerSecond;
 		if (maxSpeed <= 0.01) {
-			for (int i = 0; i < 4; i++) {
-				setModule(i, 0, lastAngles[i]);
-			}
+			stop();
 		} else {
-			SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND); //changed normalizeWheelSpeeds to desaturateWheelSpeeds
-			for (int i = 0; i < 4; i++) {
-				setModule(i, 
-				states[i].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, 
-				states[i].angle.getRadians());
-			}
+			setModuleStates(desiredStates);
 		}
 
-		odometer.update(getGyroscopeRotation(), 
-			new SwerveModuleState(modules[0].getDriveVelocity(), new Rotation2d(modules[0].getSteerAngle())), 
-			new SwerveModuleState(modules[1].getDriveVelocity(), new Rotation2d(modules[1].getSteerAngle())), 
-			new SwerveModuleState(modules[2].getDriveVelocity(), new Rotation2d(modules[2].getSteerAngle())),
-			new SwerveModuleState(modules[3].getDriveVelocity(), new Rotation2d(modules[3].getSteerAngle()))
-		);
-
-
+		odometer.update(getGyroscopeRotation(), getModulePositions());
 		m_field.setRobotPose(odometer.getPoseMeters());
 
-        SmartDashboard.putNumber("Robot Heading", getHeading());
+        SmartDashboard.putNumber("Robot Angle", pigeon.getYaw());
         SmartDashboard.putString("Robot Location", getPose().getTranslation().toString());
 	}
 }

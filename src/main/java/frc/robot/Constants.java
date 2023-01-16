@@ -4,7 +4,7 @@
 
 package frc.robot;
 
-import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
+import org.opencv.core.Mat;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -22,8 +22,8 @@ import frc.robot.subsystems.DrivetrainSubsystem;
  */
 public final class Constants {
 
-    public static final class Drivetrain {
-        private Drivetrain() {
+    public static final class DriveConstants {
+        private DriveConstants() {
         }
         /**
          * The left-to-right distance between the drivetrain wheels
@@ -39,13 +39,52 @@ public final class Constants {
         public static final double DRIVETRAIN_WHEELBASE_METERS = 0.4953;
 
         /**
+         * The diameter of the module's wheel in meters.
+         */
+        public static final double DRIVETRAIN_WHEEL_DIAMETER = 0.10033;
+
+        /**
+         * The overall drive reduction of the module. Multiplying motor rotations by
+         * this value should result in wheel rotations.
+         */
+        public static final double DRIVETRAIN_DRIVE_REDUCTION = (14.0 / 50.0) * (28.0 / 16.0) * (15.0 / 45.0);
+
+        /**
+         * Whether the drive motor should be inverted. If there is an odd number of gear
+         * reductions this is typically true.
+         */
+        public static final boolean DRIVETRAIN_DRIVE_INVERTED = true;
+
+        /**
+         * The overall steer reduction of the module. Multiplying motor rotations by
+         * this value should result in wheel rotations.
+         */
+        public static final double DRIVETRAIN_STEER_REDUCTION = (14.0 / 50.0) * (10.0 / 60.0);
+
+        /**
+         * Whether the steer motor should be inverted. If there is an odd number of gear
+         * reductions this is typically true.
+         */
+        public static final boolean DRIVETRAIN_STEER_INVERTED = false;
+
+        /**
+         * How many meters the wheels travel per encoder tick. Multiply ticks by this to get meters.
+         */
+        public static final double DRIVETRAIN_TICKS_TO_METERS = (1.0 / 2048) * DRIVETRAIN_DRIVE_REDUCTION * (DRIVETRAIN_WHEEL_DIAMETER * Math.PI);
+        //                                                     ticks/motor rotation      gear ratio                wheel circumfrence
+
+        /**
          * The maximum velocity of the robot in meters per second.
          * <p>
          * This is a measure of how fast the robot should be able to drive in a straight line.
          */
+        /*
+         * FIXME Measure the drivetrain's maximum velocity or calculate the theoretical.
+         * The formula for calculating the theoretical maximum velocity is:
+         * <Motor free speed RPM> / 60 * <Drive reduction> * <Wheel diameter meters> * pi
+         */
         public static final double MAX_VELOCITY_METERS_PER_SECOND = 6380.0 / 60.0 *
-        SdsModuleConfigurations.MK4_L1.getDriveReduction() *
-        SdsModuleConfigurations.MK4_L1.getWheelDiameter() * Math.PI;
+            DRIVETRAIN_DRIVE_REDUCTION * DRIVETRAIN_WHEEL_DIAMETER * Math.PI;
         /**
          * The maximum angular velocity of the robot in radians per second.
          * <p>
@@ -54,7 +93,20 @@ public final class Constants {
         // Here we calculate the theoretical maximum angular velocity. You can also replace this with a measured amount.
         public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND /
             Math.hypot(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
+        /**
+         * The maximum velocity of the steer motor.
+         * <p> 
+         * This is the limit of how fast the wheels can rotate in place.
+         */
+        public static final double MAX_STEER_VELOCITY_RADIANS_PER_SECOND = Math.PI; // 1/2 rotation per second.
 
+        /**
+         * The maximum acceleration of the steer motor.
+         * <p>
+         * This is the limit of how fast the wheels can change rotation speed.
+         */
+        public static final double MAX_STEER_ACCELERATION_RADIANS_PER_SECOND_SQUARED = 2 * Math.PI; 
+        
         public static final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
             // Front left
             new Translation2d(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0),
@@ -118,9 +170,9 @@ public final class Constants {
     }
     
     public static final class AutoConstants {
-        public static final double kMaxSpeedMetersPerSecond = Drivetrain.MAX_VELOCITY_METERS_PER_SECOND / 4;
+        public static final double kMaxSpeedMetersPerSecond = DriveConstants.MAX_VELOCITY_METERS_PER_SECOND / 4;
         public static final double kMaxAngularSpeedRadiansPerSecond =
-                Drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND / 10;
+                DriveConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND / 10;
         public static final double kMaxAccelerationMetersPerSecondSquared = 3;
         public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Math.PI / 4;
         public static final double kPXController = 1.5;
@@ -133,7 +185,7 @@ public final class Constants {
         public static final TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
             kMaxSpeedMetersPerSecond,
             kMaxAccelerationMetersPerSecondSquared)
-            .setKinematics(Drivetrain.kinematics);
+            .setKinematics(DriveConstants.kinematics);
     }
 }
 

@@ -27,7 +27,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import frc.robot.Constants.AutoConstants;
-import frc.robot.Constants.Drivetrain;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.commands.Drive;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.autonomous.*;
@@ -87,8 +87,8 @@ public class RobotContainer {
     SmartDashboard.setPersistent("kItheta");
     SmartDashboard.setPersistent("kDtheta");
     SmartDashboard.putData("Auto Chooser", autoChooser);
-    SmartDashboard.putData("Basic Auto", new BasicAuto(xController, yController, thetaController, drivetrain));
-    SmartDashboard.putData("Forward Turn Auto", new ForwardsTurn180(xController, yController, thetaController, drivetrain));
+    // SmartDashboard.putData("Basic Auto", new BasicAuto(xController, yController, thetaController, drivetrain));
+    // SmartDashboard.putData("Forward Turn Auto", new ForwardsTurn180(xController, yController, thetaController, drivetrain));
     // Configure the button bindings
     configureButtonBindings();
   }
@@ -153,6 +153,7 @@ public class RobotContainer {
   }
   public void robotInit() {
     drivetrain.zeroGyroscope();
+    autoInit();
     autoChooser.setDefaultOption("Basic Auto", new BasicAuto(xController, yController, thetaController, drivetrain));
     autoChooser.addOption("2 meters, rotate 180", new ForwardsTurn180(xController, yController, thetaController, drivetrain));
   }

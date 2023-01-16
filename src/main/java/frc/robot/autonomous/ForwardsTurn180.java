@@ -17,7 +17,7 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
-import frc.robot.Constants.Drivetrain;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.subsystems.DrivetrainSubsystem;
 
@@ -38,7 +38,7 @@ public class ForwardsTurn180 extends SequentialCommandGroup {
     SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
       trajectory,
       drivetrain::getPose,
-      Drivetrain.kinematics,
+      DriveConstants.kinematics,
       xController,
       yController,
       thetaController,
