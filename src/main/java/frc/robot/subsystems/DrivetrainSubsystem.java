@@ -69,24 +69,27 @@ public class DrivetrainSubsystem extends SubsystemBase {
             new Pose2d(7, 4, Rotation2d.fromDegrees(180)),
             trajectoryConfig);
 			
-	private ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
+	private ChassisSpeeds chassisSpeeds;
+	private final SwerveDriveOdometry odometer;
+
 	private final Field2d m_field = new Field2d();
 
 	public DrivetrainSubsystem() {
 		SmartDashboard.putData("Field", m_field);
 		
 		m_field.getObject("traj").setTrajectory(trajectory);
-
+		
+		
 		modules = new SwerveModule[4];
-		lastAngles = new Rotation2d[4];
-
+		lastAngles = new Rotation2d[] {new Rotation2d(), new Rotation2d(), new Rotation2d(), new Rotation2d()}; // manually make empty angles to avoid null errors.
+		
 		modules[0] = new SwerveModule(
-				FL_DRIVE_MOTOR_ID,
-				FL_STEER_MOTOR_ID,
-				FL_STEER_ENCODER_ID,
-				FL_STEER_OFFSET,
-				CANIVORE_DRIVETRAIN);
-		modules[1] = new SwerveModule(
+			FL_DRIVE_MOTOR_ID,
+			FL_STEER_MOTOR_ID,
+			FL_STEER_ENCODER_ID,
+			FL_STEER_OFFSET,
+			CANIVORE_DRIVETRAIN);
+			modules[1] = new SwerveModule(
 				FR_DRIVE_MOTOR_ID,
 				FR_STEER_MOTOR_ID,
 				FR_STEER_ENCODER_ID,
@@ -99,16 +102,21 @@ public class DrivetrainSubsystem extends SubsystemBase {
 				BL_STEER_OFFSET,
 				CANIVORE_DRIVETRAIN);
 		modules[3] = new SwerveModule(
-				BR_DRIVE_MOTOR_ID,
-				BR_STEER_MOTOR_ID,
-				BR_STEER_ENCODER_ID,
-				BR_STEER_OFFSET,
-				CANIVORE_DRIVETRAIN);
-	}
+			BR_DRIVE_MOTOR_ID,
+			BR_STEER_MOTOR_ID,
+			BR_STEER_ENCODER_ID,
+			BR_STEER_OFFSET,
+			CANIVORE_DRIVETRAIN);
+		chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
+		odometer = new SwerveDriveOdometry(
+				kinematics, 
+				getGyroscopeRotation(), 
+				getModulePositions(),
+				new Pose2d(5.0, 5.0, new Rotation2d()));
+		}
 
-	
-	private final SwerveDriveOdometry odometer = new SwerveDriveOdometry(kinematics, getGyroscopeRotation(), getModulePositions(), new Pose2d(5.0, 5.0, new Rotation2d()));
-
+		
+		
 	/**
 	 * Sets the gyroscope angle to zero. This can be used to set the direction the robot is currently facing to the
 	 * 'forwards' direction.

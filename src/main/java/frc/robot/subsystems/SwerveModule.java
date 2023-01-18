@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.DriverStation;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
@@ -109,6 +110,11 @@ public class SwerveModule {
    * @param desiredState Desired state with speed and angle.
    */
   public void setDesiredState(SwerveModuleState desiredState) {
+
+    if (desiredState.angle == null) {
+      DriverStation.reportWarning("Cannot set module angle to null.", true);
+    }
+
     // Optimize the reference state to avoid spinning further than 90 degrees.
     SwerveModuleState state =
     SwerveModuleState.optimize(desiredState, new Rotation2d(m_steerEncoder.getPosition()));
