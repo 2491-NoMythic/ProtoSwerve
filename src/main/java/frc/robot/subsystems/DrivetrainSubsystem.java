@@ -4,7 +4,7 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.sensors.Pigeon2;
+import com.ctre.phoenixpro.hardware.Pigeon2;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -18,11 +18,14 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.shuffleboard.WidgetType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.CTREConfigs;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 
@@ -31,8 +34,10 @@ import static frc.robot.Constants.DriveConstants.*;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class DrivetrainSubsystem extends SubsystemBase {
+	public static final CTREConfigs ctreConfig = new CTREConfigs();
 	/**
 	 * The maximum voltage that will be delivered to the drive motors.
 	 * <p>
@@ -75,6 +80,11 @@ public class DrivetrainSubsystem extends SubsystemBase {
 	private final Field2d m_field = new Field2d();
 
 	public DrivetrainSubsystem() {
+		ShuffleboardTab tab = Shuffleboard.getTab(DRIVETRAIN_SMARTDASHBOARD_TAB);
+		tab.add("Field", m_field)
+			.withWidget(BuiltInWidgets.kField)
+			.withSize(5, 3)
+			.withPosition(8, 0);
 		SmartDashboard.putData("Field", m_field);
 		
 		m_field.getObject("traj").setTrajectory(trajectory);
@@ -84,57 +94,71 @@ public class DrivetrainSubsystem extends SubsystemBase {
 		lastAngles = new Rotation2d[] {new Rotation2d(), new Rotation2d(), new Rotation2d(), new Rotation2d()}; // manually make empty angles to avoid null errors.
 		
 		modules[0] = new SwerveModule(
+			"FL",
+			tab.getLayout("Front Left Module", BuiltInLayouts.kGrid)
+				.withProperties(Map.of("Number of columns", 3, "Number of rows", 1, "Label position", "Top"))
+				.withSize(4, 3)
+				.withPosition(0, 0),
 			FL_DRIVE_MOTOR_ID,
 			FL_STEER_MOTOR_ID,
 			FL_STEER_ENCODER_ID,
 			FL_STEER_OFFSET,
 			CANIVORE_DRIVETRAIN);
-			modules[1] = new SwerveModule(
-				FR_DRIVE_MOTOR_ID,
-				FR_STEER_MOTOR_ID,
-				FR_STEER_ENCODER_ID,
-				FR_STEER_OFFSET,
-				CANIVORE_DRIVETRAIN);
+		modules[1] = new SwerveModule(
+			"FR",
+			tab.getLayout("Front Right Module", BuiltInLayouts.kGrid)
+				.withProperties(Map.of("Number of columns", 3, "Number of rows", 1, "Label position", "Top"))
+				.withSize(4, 3)
+				.withPosition(4, 0),
+			FR_DRIVE_MOTOR_ID,
+			FR_STEER_MOTOR_ID,
+			FR_STEER_ENCODER_ID,
+			FR_STEER_OFFSET,
+			CANIVORE_DRIVETRAIN);
 		modules[2] = new SwerveModule(
+			"BL",
+			tab.getLayout("Back Left Module", BuiltInLayouts.kGrid)
+				.withProperties(Map.of("Number of columns", 3, "Number of rows", 1, "Label position", "Top"))
+				.withSize(4, 3)
+				.withPosition(0, 3),
 				BL_DRIVE_MOTOR_ID,
 				BL_STEER_MOTOR_ID,
 				BL_STEER_ENCODER_ID,
 				BL_STEER_OFFSET,
 				CANIVORE_DRIVETRAIN);
 		modules[3] = new SwerveModule(
+			"BR",
+			tab.getLayout("Back Right Module", BuiltInLayouts.kGrid)
+				.withProperties(Map.of("Number of columns", 3, "Number of rows", 1, "Label position", "Top"))
+				.withSize(4, 3)
+				.withPosition(4, 3),
 			BR_DRIVE_MOTOR_ID,
 			BR_STEER_MOTOR_ID,
 			BR_STEER_ENCODER_ID,
 			BR_STEER_OFFSET,
 			CANIVORE_DRIVETRAIN);
 		chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
+		calibrateWheels();
 		odometer = new SwerveDriveOdometry(
 				kinematics, 
 				getGyroscopeRotation(), 
 				getModulePositions(),
 				new Pose2d(5.0, 5.0, new Rotation2d()));
 		}
-
-		
-		
 	/**
 	 * Sets the gyroscope angle to zero. This can be used to set the direction the robot is currently facing to the
 	 * 'forwards' direction.
 	 */
 	public void zeroGyroscope() {
+		calibrateWheels();
 		pigeon.setYaw(0.0);
 		odometer.resetPosition(new Rotation2d(), getModulePositions(), getPose());
 	}
-
-	public Rotation2d getGyroscopeRotation() {
-		return Rotation2d.fromDegrees(pigeon.getYaw());
+	public void calibrateWheels() {
+		for (int i = 0; i < 4; i++) modules[i].resetToAbsolute();
 	}
-
-	public double getHeading() {
-		return Math.IEEEremainder(pigeon.getYaw(), 360);
-	}
-	public Rotation2d getRotation2d() {
-		return Rotation2d.fromDegrees(getHeading());
+	public Rotation2d getGyroscopeRotation() {//todo make continuous vs not continuous versions
+		return pigeon.getRotation2d();
 	}
 	public SwerveModulePosition[] getModulePositions() {
 		SwerveModulePosition[] positions = new SwerveModulePosition[4];
@@ -197,7 +221,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 		odometer.update(getGyroscopeRotation(), getModulePositions());
 		m_field.setRobotPose(odometer.getPoseMeters());
 
-        SmartDashboard.putNumber("Robot Angle", pigeon.getYaw());
+        SmartDashboard.putNumber("Robot Angle", getGyroscopeRotation().getDegrees());
         SmartDashboard.putString("Robot Location", getPose().getTranslation().toString());
 	}
 }

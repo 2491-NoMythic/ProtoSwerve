@@ -6,6 +6,9 @@ package frc.robot;
 
 import org.opencv.core.Mat;
 
+import com.ctre.phoenixpro.signals.InvertedValue;
+
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
@@ -50,10 +53,10 @@ public final class Constants {
         public static final double DRIVETRAIN_DRIVE_REDUCTION = (14.0 / 50.0) * (28.0 / 16.0) * (15.0 / 45.0);
 
         /**
-         * Whether the drive motor should be inverted. If there is an odd number of gear
-         * reductions this is typically true.
+         * Whether the drive motor should be counterclockwise or clockwise positive. 
+         * If there is an odd number of gear reductions this is typically clockwise-positive.
          */
-        public static final boolean DRIVETRAIN_DRIVE_INVERTED = true;
+        public static final InvertedValue DRIVETRAIN_DRIVE_INVERTED = InvertedValue.Clockwise_Positive;
 
         /**
          * The overall steer reduction of the module. Multiplying motor rotations by
@@ -62,16 +65,15 @@ public final class Constants {
         public static final double DRIVETRAIN_STEER_REDUCTION = (14.0 / 50.0) * (10.0 / 60.0);
 
         /**
-         * Whether the steer motor should be inverted. If there is an odd number of gear
-         * reductions this is typically true.
+         * Whether the steer motor should be counterclockwise or clockwise positive. 
+         * If there is an odd number of gear reductions this is typically clockwise-positive.
          */
-        public static final boolean DRIVETRAIN_STEER_INVERTED = false;
+        public static final InvertedValue DRIVETRAIN_STEER_INVERTED = InvertedValue.CounterClockwise_Positive;
 
         /**
-         * How many meters the wheels travel per encoder tick. Multiply ticks by this to get meters.
+         * How many meters the wheels travel per rotation. Multiply rotations by this to get meters.
          */
-        public static final double DRIVETRAIN_TICKS_TO_METERS = (1.0 / 2048) * DRIVETRAIN_DRIVE_REDUCTION * (DRIVETRAIN_WHEEL_DIAMETER * Math.PI);
-        //                                                     ticks/motor rotation      gear ratio                wheel circumfrence
+        public static final double DRIVETRAIN_ROTATIONS_TO_METERS = (DRIVETRAIN_WHEEL_DIAMETER * Math.PI);
 
         /**
          * The maximum velocity of the robot in meters per second.
@@ -93,21 +95,8 @@ public final class Constants {
         // Here we calculate the theoretical maximum angular velocity. You can also replace this with a measured amount.
         public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND /
             Math.hypot(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
-        /**
-         * The maximum velocity of the steer motor.
-         * <p> 
-         * This is the limit of how fast the wheels can rotate in place.
-         */
-        public static final double MAX_STEER_VELOCITY_RADIANS_PER_SECOND = Math.PI; // 1/2 rotation per second.
-
-        /**
-         * The maximum acceleration of the steer motor.
-         * <p>
-         * This is the limit of how fast the wheels can change rotation speed.
-         */
-        public static final double MAX_STEER_ACCELERATION_RADIANS_PER_SECOND_SQUARED = 2 * Math.PI; 
-        
-        public static final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
+            
+            public static final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
             // Front left
             new Translation2d(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0),
             // Front right
@@ -118,28 +107,29 @@ public final class Constants {
             new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DRIVETRAIN_WHEELBASE_METERS / 2.0)
         );
 
+        public static final String DRIVETRAIN_SMARTDASHBOARD_TAB = "Drivetrain";
         public static final String CANIVORE_DRIVETRAIN = "Swerve";
         public static final int DRIVETRAIN_PIGEON_ID = 0;
 
         public static final int FL_DRIVE_MOTOR_ID = 1;
         public static final int FL_STEER_MOTOR_ID = 2;
         public static final int FL_STEER_ENCODER_ID = 1;
-        public static final double FL_STEER_OFFSET = -Math.toRadians(48.9);
+        public static final Rotation2d FL_STEER_OFFSET = Rotation2d.fromRotations(0);
 
         public static final int FR_DRIVE_MOTOR_ID = 3;
         public static final int FR_STEER_MOTOR_ID = 4;
         public static final int FR_STEER_ENCODER_ID = 2;
-        public static final double FR_STEER_OFFSET = -Math.toRadians(88.38);
+        public static final Rotation2d FR_STEER_OFFSET = Rotation2d.fromRotations(0);
 
         public static final int BL_DRIVE_MOTOR_ID = 5;
         public static final int BL_STEER_MOTOR_ID = 6;
         public static final int BL_STEER_ENCODER_ID = 3;
-        public static final double BL_STEER_OFFSET = -Math.toRadians(182.6);
+        public static final Rotation2d BL_STEER_OFFSET = Rotation2d.fromRotations(0);
 
         public static final int BR_DRIVE_MOTOR_ID = 7;
         public static final int BR_STEER_MOTOR_ID = 8;
         public static final int BR_STEER_ENCODER_ID = 4;
-        public static final double BR_STEER_OFFSET = -Math.toRadians(38.5);
+        public static final Rotation2d BR_STEER_OFFSET = Rotation2d.fromRotations(0);
 
         public static final double K_MAX_SPEED = 3.0; // 3 meters per second
         public static final double K_MAX_ANGULAR_SPEED = Math.PI; // 1/2 radians rotation per second
@@ -150,7 +140,32 @@ public final class Constants {
         /** This tuning parameter indicates how close to "on target" the PID Controller will attempt to get.*/
         public static final double K_TURN_TOLORANCE_DEGREES = 2.0;
         public static final double K_TURN_TOLORANCE_DEG_PER_SEC = 10;
-        }
+
+
+        // Drive Motor
+        public static final double K_DRIVE_P = 1;
+        public static final double K_DRIVE_I = 0;
+        public static final double K_DRIVE_D = 0;
+        public static final double K_DRIVE_FF_S = 1; 
+        public static final double K_DRIVE_FF_V = 3;
+
+        // Steer Motor
+        /**
+         * The maximum velocity of the steer motor. <p> 
+         * This is the limit of how fast the wheels can rotate in place.
+         */
+        public static final double MAX_STEER_VELOCITY_RADIANS_PER_SECOND = Math.PI; // 1/2 rotation per second.
+        /**
+         * The maximum acceleration of the steer motor. <p>
+         * This is the limit of how fast the wheels can change rotation speed.
+         */
+        public static final double MAX_STEER_ACCELERATION_RADIANS_PER_SECOND_SQUARED = 2 * Math.PI; 
+        public static final double K_STEER_P = 0.2;
+        public static final double K_STEER_I = 0;
+        public static final double K_STEER_D = 0; 
+        public static final double K_STEER_FF_S = 0; 
+        public static final double K_STEER_FF_V = 0; 
+    }
     public final class PS4 {
         private PS4() {
         }
