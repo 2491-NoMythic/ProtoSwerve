@@ -68,10 +68,12 @@ public final class Constants {
          * Whether the steer motor should be counterclockwise or clockwise positive. 
          * If there is an odd number of gear reductions this is typically clockwise-positive.
          */
-        public static final InvertedValue DRIVETRAIN_STEER_INVERTED = InvertedValue.CounterClockwise_Positive;
+        public static final InvertedValue DRIVETRAIN_STEER_INVERTED = InvertedValue.Clockwise_Positive;
 
         /**
-         * How many meters the wheels travel per rotation. Multiply rotations by this to get meters.
+         * How many meters the wheels travel per rotation. <p>
+         * Multiply rotations by this to get meters.<p>
+         * Divide meters by this to get rotations.
          */
         public static final double DRIVETRAIN_ROTATIONS_TO_METERS = (DRIVETRAIN_WHEEL_DIAMETER * Math.PI);
 
@@ -87,6 +89,10 @@ public final class Constants {
          */
         public static final double MAX_VELOCITY_METERS_PER_SECOND = 6380.0 / 60.0 *
             DRIVETRAIN_DRIVE_REDUCTION * DRIVETRAIN_WHEEL_DIAMETER * Math.PI;
+        /**
+         * The drive motor sensor value at a 100% duty cycle output in a straight line.
+         */
+        public static final double MAX_VELOCITY_RPS_EMPIRICAL = 15.697;
         /**
          * The maximum angular velocity of the robot in radians per second.
          * <p>
@@ -114,27 +120,27 @@ public final class Constants {
         public static final int FL_DRIVE_MOTOR_ID = 1;
         public static final int FL_STEER_MOTOR_ID = 2;
         public static final int FL_STEER_ENCODER_ID = 1;
-        public static final Rotation2d FL_STEER_OFFSET = Rotation2d.fromRotations(0);
+        public static final Rotation2d FL_STEER_OFFSET = Rotation2d.fromDegrees(97.646);
 
         public static final int FR_DRIVE_MOTOR_ID = 3;
         public static final int FR_STEER_MOTOR_ID = 4;
         public static final int FR_STEER_ENCODER_ID = 2;
-        public static final Rotation2d FR_STEER_OFFSET = Rotation2d.fromRotations(0);
+        public static final Rotation2d FR_STEER_OFFSET = Rotation2d.fromDegrees(149.150);
 
         public static final int BL_DRIVE_MOTOR_ID = 5;
         public static final int BL_STEER_MOTOR_ID = 6;
         public static final int BL_STEER_ENCODER_ID = 3;
-        public static final Rotation2d BL_STEER_OFFSET = Rotation2d.fromRotations(0);
+        public static final Rotation2d BL_STEER_OFFSET = Rotation2d.fromDegrees(318.164);
 
         public static final int BR_DRIVE_MOTOR_ID = 7;
         public static final int BR_STEER_MOTOR_ID = 8;
         public static final int BR_STEER_ENCODER_ID = 4;
-        public static final Rotation2d BR_STEER_OFFSET = Rotation2d.fromRotations(0);
+        public static final Rotation2d BR_STEER_OFFSET = Rotation2d.fromDegrees(145.547);
 
         public static final double K_MAX_SPEED = 3.0; // 3 meters per second
         public static final double K_MAX_ANGULAR_SPEED = Math.PI; // 1/2 radians rotation per second
 
-        public static final double K_TURN_P = 0.015;
+        public static final double K_TURN_P = 0.0;
         public static final double K_TURN_I = 0.0;
         public static final double K_TURN_D = 0.0;
         /** This tuning parameter indicates how close to "on target" the PID Controller will attempt to get.*/
@@ -143,11 +149,11 @@ public final class Constants {
 
 
         // Drive Motor
-        public static final double K_DRIVE_P = 1;
+        public static final double K_DRIVE_P = 0.03;
         public static final double K_DRIVE_I = 0;
         public static final double K_DRIVE_D = 0;
-        public static final double K_DRIVE_FF_S = 1; 
-        public static final double K_DRIVE_FF_V = 3;
+        public static final double K_DRIVE_FF_S = 0; 
+        public static final double K_DRIVE_FF_V = 0;
 
         // Steer Motor
         /**
@@ -160,11 +166,11 @@ public final class Constants {
          * This is the limit of how fast the wheels can change rotation speed.
          */
         public static final double MAX_STEER_ACCELERATION_RADIANS_PER_SECOND_SQUARED = 2 * Math.PI; 
-        public static final double K_STEER_P = 0.2;
-        public static final double K_STEER_I = 0;
-        public static final double K_STEER_D = 0; 
-        public static final double K_STEER_FF_S = 0; 
-        public static final double K_STEER_FF_V = 0; 
+        public static final double K_STEER_P = 8.0;
+        public static final double K_STEER_I = 0.0;
+        public static final double K_STEER_D = 0.0; 
+        public static final double K_STEER_FF_S = 0.0; 
+        public static final double K_STEER_FF_V = 0.0; 
     }
     public final class PS4 {
         private PS4() {

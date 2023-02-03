@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -18,17 +19,29 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.LayoutType;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardContainer;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
 import java.util.Map;
 import java.util.function.DoubleSupplier;
 
+import com.ctre.phoenixpro.configs.CANcoderConfiguration;
+import com.ctre.phoenixpro.configs.MagnetSensorConfigs;
+import com.ctre.phoenixpro.configs.TalonFXConfiguration;
+import com.ctre.phoenixpro.configs.TalonFXConfigurator;
+import com.ctre.phoenixpro.controls.CoastOut;
+import com.ctre.phoenixpro.controls.DutyCycleOut;
+import com.ctre.phoenixpro.controls.NeutralOut;
+import com.ctre.phoenixpro.controls.PositionDutyCycle;
+import com.ctre.phoenixpro.controls.PositionTorqueCurrentFOC;
+import com.ctre.phoenixpro.controls.StaticBrake;
+import com.ctre.phoenixpro.controls.VelocityDutyCycle;
+import com.ctre.phoenixpro.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenixpro.hardware.CANcoder;
 import com.ctre.phoenixpro.hardware.TalonFX;
-import com.fasterxml.jackson.annotation.JacksonInject.Value;
 
-import frc.robot.CTREConfigs;
 import frc.robot.Constants.DriveConstants;
 
 public class SwerveModule {
@@ -37,40 +50,22 @@ public class SwerveModule {
   private final TalonFX m_steerMotor;
   private final CANcoder m_steerEncoder;
   private final Rotation2d m_steerEncoderOffset;
+
+  ShuffleboardTab debugInfo;
+  /**
+   * The target wheel angle in rotations. [-.5, .5]
+   */
   private double m_desiredSteerAngle;
+  /**
+   * The target wheel speed in rotations per second
+   */
   private double m_desiredDriveSpeed;
 
-  private GenericEntry m_driveP;
-  private GenericEntry m_driveI;
-  private GenericEntry m_driveD;
-  private GenericEntry m_driveS;
-  private GenericEntry m_driveV;
-
-  private GenericEntry m_steerP;
-  private GenericEntry m_steerI;
-  private GenericEntry m_steerD;
-  private GenericEntry m_steerS;
-  private GenericEntry m_steerV;
-
-
-  // // Gains are for example purposes only - must be determined for your own robot!
-  // private final PIDController m_drivePIDController = new PIDController(
-  //     DriveConstants.K_DRIVE_P,
-  //     DriveConstants.K_DRIVE_I,
-  //     DriveConstants.K_DRIVE_D);
-
-  // // Gains are for example purposes only - must be determined for your own robot!
-  // private final ProfiledPIDController m_steerPIDController =
-  //     new ProfiledPIDController(
-  //         DriveConstants.K_STEER_P,
-  //         DriveConstants.K_STEER_I,
-  //         DriveConstants.K_STEER_D,
-  //         new TrapezoidProfile.Constraints(
-  //             DriveConstants.MAX_STEER_VELOCITY_RADIANS_PER_SECOND, DriveConstants.MAX_STEER_ACCELERATION_RADIANS_PER_SECOND_SQUARED));
-
-  // // Gains are for example purposes only - must be determined for your own robot!
-  // private final SimpleMotorFeedforward m_driveFeedforward = new SimpleMotorFeedforward(DriveConstants.K_DRIVE_FF_S, DriveConstants.K_DRIVE_FF_V);
-  // private final SimpleMotorFeedforward m_steerFeedforward = new SimpleMotorFeedforward(DriveConstants.K_STEER_FF_S, DriveConstants.K_STEER_FF_V);
+  private VelocityDutyCycle m_driveControl = new VelocityDutyCycle(0, true, 0, 0, false);
+  private PositionDutyCycle m_steerControl = new PositionDutyCycle(0, true, 0, 0, false);
+  private CoastOut m_coastControl = new CoastOut();
+  private StaticBrake m_brakeControl = new StaticBrake();
+  private NeutralOut m_neutralControl = new NeutralOut();
 
   /**
    * Constructs a SwerveModule with a drive motor, turning motor and turning encoder.
@@ -92,12 +87,20 @@ public class SwerveModule {
     m_steerMotor = new TalonFX(steerMotorChannel, canivoreName);
     m_steerEncoder = new CANcoder(steerEncoderChannel, canivoreName);
     m_steerEncoderOffset = steerEncoderOffset;
+    
+    // com.ctre.phoenix.motorcontrol.can.TalonFX testmotor = new com.ctre.phoenix.motorcontrol.can.TalonFX(1);
+   
 
+    CANcoderConfiguration steerEncoderConfig = DrivetrainSubsystem.ctreConfig.steerEncoderConfig;
+    TalonFXConfiguration steerMotorConfig = DrivetrainSubsystem.ctreConfig.steerMotorConfig;
+
+    steerEncoderConfig.MagnetSensor.MagnetOffset = -m_steerEncoderOffset.getRotations();
+    steerMotorConfig.Feedback.FeedbackRemoteSensorID = steerEncoderChannel;
     // Apply the configurations.
     m_driveMotor.getConfigurator().apply(DrivetrainSubsystem.ctreConfig.driveMotorConfig);
-    m_steerMotor.getConfigurator().apply(DrivetrainSubsystem.ctreConfig.steerMotorConfig);
-    m_steerEncoder.getConfigurator().apply(DrivetrainSubsystem.ctreConfig.steerEncoderConfig);
-  }
+    m_steerMotor.getConfigurator().apply(steerMotorConfig);
+    m_steerEncoder.getConfigurator().apply(steerEncoderConfig);
+    }
 
   static class GyroView implements Sendable {
     DoubleSupplier value;
@@ -124,6 +127,7 @@ public class SwerveModule {
   public SwerveModule(
       String moduleName,
       ShuffleboardLayout sbLayout,
+      boolean debug,
       int driveMotorChannel,
       int steerMotorChannel,
       int steerEncoderChannel,
@@ -132,66 +136,38 @@ public class SwerveModule {
     this(moduleName, driveMotorChannel, steerMotorChannel, steerEncoderChannel, steerEncoderOffset, canivoreName);
     
     // Make grid layouts.
-    ShuffleboardLayout GeneralInfo = sbLayout.getLayout("GeneralInfo", BuiltInLayouts.kGrid)
-      .withProperties(Map.of("Number of columns", 1, "Number of rows", 3, "Label position", "Top"));
-
-    ShuffleboardLayout PIDInfo = sbLayout.getLayout("PIDInfo", BuiltInLayouts.kGrid)
-      .withProperties(Map.of("Number of columns", 2, "Number of rows", 2, "Label position", "Top"));
+    ShuffleboardLayout MotorInfo = sbLayout.getLayout("GeneralInfo", BuiltInLayouts.kGrid)
+      .withProperties(Map.of("Number of columns", 1, "Number of rows", 3, "Label position", "LEFT"));
 
     ShuffleboardLayout ModuleInfo = sbLayout.getLayout("ModuleInfo", BuiltInLayouts.kGrid)
-      .withProperties(Map.of("Number of columns", 1, "Number of rows", 4, "Label position", "Top"));
+      .withProperties(Map.of("Number of columns", 1, "Number of rows", 4, "Label position", "RIGHT"));
 
-    // ShuffleboardLayout DriveInfo = PIDInfo.getLayout("DriveInfo", BuiltInLayouts.kGrid)
-    //   .withProperties(Map.of("Number of columns", 2, "Number of rows", 3, "Label position", "Top"));
-
-    // ShuffleboardLayout SteerInfo = PIDInfo.getLayout("SteerInfo", BuiltInLayouts.kGrid)
-    //   .withProperties(Map.of("Number of columns", 2, "Number of rows", 3, "Label position", "Top"));
-
-    GeneralInfo.add(moduleName + " Angle", new GyroView(() -> getRotation().getDegrees()))
+    MotorInfo.add(moduleName + " Angle", new GyroView(() -> getRotation().getDegrees()))
       .withWidget(BuiltInWidgets.kGyro) 
       .withProperties(Map.of("Major tick spacing", 180, "Counter Clockwise", true));
-    GeneralInfo.addNumber(moduleName + " Speed", () -> getSpeedMetersPerSecond());
-
+    MotorInfo.addNumber(moduleName + " Drive Voltage", () -> m_driveMotor.getStatorCurrent().getValue());
+    MotorInfo.addNumber(moduleName + " Steer Voltage", () -> m_steerMotor.getStatorCurrent().getValue());
+    
     ModuleInfo.addNumber(moduleName + " Speed", () -> getSpeedMetersPerSecond());
     ModuleInfo.addNumber(moduleName + " Angle", () -> getRotation().getDegrees());
     ModuleInfo.addNumber(moduleName + " Speed Target", () -> getTargetSpeedMetersPerSecond());
     ModuleInfo.addNumber(moduleName + " Angle Target", () -> getTargetAngle());
+    if (debug) {
+      debugInfo = Shuffleboard.getTab("Debug");
+      debugInfo.addNumber("Drive Target", () -> m_driveMotor.getClosedLoopReference().getValue());
+      debugInfo.addNumber("Drive Value", () -> m_driveMotor.getVelocity().getValue());
+      debugInfo.addNumber("Drive Error", () -> m_driveMotor.getClosedLoopError().getValue());
 
-    // m_driveP = DriveInfo.add("Drive P", DriveConstants.K_DRIVE_P).getEntry();
-    // m_driveI = DriveInfo.addPersistent("Drive I", DriveConstants.K_DRIVE_I).getEntry();
-    // m_driveD = DriveInfo.addPersistent("Drive D", DriveConstants.K_DRIVE_D).getEntry();
-    // m_driveS = DriveInfo.addPersistent("Drive FFs", DriveConstants.K_DRIVE_FF_S).getEntry();
-    // m_driveV = DriveInfo.addPersistent("Drive FFv", DriveConstants.K_DRIVE_FF_V).getEntry();
-    // DriveInfo.addNumber("Drive Error", () -> m_drivePIDController.getPositionError());
+      debugInfo.addNumber("Steer Target", () -> m_steerMotor.getClosedLoopReference().getValue());
+      debugInfo.addNumber("Steer Value", () -> MathUtil.inputModulus(getRotation().getRotations(), -0.5, 0.5));
+      debugInfo.addNumber("Steer Error", () -> m_steerMotor.getClosedLoopError().getValue());
+      debugInfo.add(m_steerMotor);
+    }
 
-    // m_steerP = SteerInfo.addPersistent("Steer P", DriveConstants.K_STEER_P).getEntry();
-    // m_steerI = SteerInfo.addPersistent("Steer I", DriveConstants.K_STEER_I).getEntry();
-    // m_steerD = SteerInfo.addPersistent("Steer D", DriveConstants.K_STEER_D).getEntry();
-    // m_steerS = SteerInfo.addPersistent("Steer FFs", DriveConstants.K_STEER_FF_S).getEntry();
-    // m_steerV = SteerInfo.addPersistent("Steer FFv", DriveConstants.K_STEER_FF_V).getEntry();
-    // SteerInfo.addNumber("Drive Error", () -> m_steerPIDController.getPositionError());
-    // PIDInfo.add(m_drivePIDController);
-    // PIDInfo.add(m_steerPIDController);
-    // PIDInfo.addNumber("PIDError", ()-> m_drivePIDController.getPositionError());
   }
-  // /**
-  //  * Sets the PID and FeedForward values to both of the PID loops.
-  //  * @return
-  //  */
-  // public void SetPID(){
-  //   m_drivePIDController.setPID(
-  //     m_driveP.getDouble(DriveConstants.K_DRIVE_P), 
-  //     m_driveI.getDouble(DriveConstants.K_DRIVE_I), 
-  //     m_driveD.getDouble(DriveConstants.K_DRIVE_D)
-  //     );
-  //   m_steerPIDController.setPID(
-  //     m_steerP.getDouble(DriveConstants.K_STEER_P), 
-  //     m_steerI.getDouble(DriveConstants.K_STEER_I), 
-  //     m_steerD.getDouble(DriveConstants.K_STEER_D)
-  //     );
-  // }
+
   public void resetToAbsolute(){
-    double absolutePosition = m_steerEncoder.getAbsolutePosition().getValue() - m_steerEncoderOffset.getRotations();
+    double absolutePosition = m_steerEncoder.getAbsolutePosition().getValue() -m_steerEncoderOffset.getRotations();
     m_steerMotor.setRotorPosition(absolutePosition);
   }
   /**
@@ -246,6 +222,9 @@ public class SwerveModule {
     return (m_driveMotor.getPosition().getValue() * DriveConstants.DRIVETRAIN_ROTATIONS_TO_METERS);
   }
 
+  public void stop() {
+
+  }
   /**
    * Sets the desired state for the module.
    * @param desiredState Desired state with speed and angle.
@@ -255,27 +234,17 @@ public class SwerveModule {
     if (desiredState.angle == null) {
       DriverStation.reportWarning("Cannot set module angle to null.", true);
     }
-    m_desiredSteerAngle = desiredState.angle.getDegrees();
-    m_desiredDriveSpeed = desiredState.speedMetersPerSecond;
     // Optimize the reference state to avoid spinning further than 90 degrees.
     SwerveModuleState state =
     SwerveModuleState.optimize(desiredState, getRotation());
-    
-    // // Calculate the drive output from the drive PID controller.
-    // final double driveOutput =
-    // m_drivePIDController.calculate(getSpeedMetersPerSecond(), state.speedMetersPerSecond);
-    
-    // final double driveFeedforward = m_driveFeedforward.calculate(state.speedMetersPerSecond);
-    
-    // // Calculate the turning motor output from the turning PID controller.
-    // final double turnOutput =
-    // m_steerPIDController.calculate(m_steerEncoder.getPosition(), state.angle.getRadians());
-    
-    // final double turnFeedforward =
-    // m_steerFeedforward.calculate(m_steerPIDController.getSetpoint().velocity);
-    
-    // m_driveMotor.set(ControlMode.Current, driveOutput + driveFeedforward);
-    // m_steerMotor.set(ControlMode.Current, turnOutput + turnFeedforward);
+
+    m_desiredSteerAngle = MathUtil.inputModulus(state.angle.getRotations(), -0.5, 0.5);
+    m_desiredDriveSpeed = state.speedMetersPerSecond / DriveConstants.DRIVETRAIN_ROTATIONS_TO_METERS;
+
+    m_driveMotor.setControl(m_driveControl.withVelocity(m_desiredDriveSpeed).withFeedForward(m_desiredDriveSpeed/DriveConstants.MAX_VELOCITY_RPS_EMPIRICAL));
+    // m_driveMotor.setControl(new DutyCycleOut(0.5));
+    m_steerMotor.setControl(m_steerControl.withPosition(m_desiredSteerAngle));
+    // m_steerMotor.setControl(m_brakeControl);
   }
 
 }

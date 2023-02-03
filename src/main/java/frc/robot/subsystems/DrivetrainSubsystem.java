@@ -96,9 +96,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
 		modules[0] = new SwerveModule(
 			"FL",
 			tab.getLayout("Front Left Module", BuiltInLayouts.kGrid)
-				.withProperties(Map.of("Number of columns", 3, "Number of rows", 1, "Label position", "Top"))
+				.withProperties(Map.of("Number of columns", 3, "Number of rows", 1, "Label position", "HIDDEN"))
 				.withSize(4, 3)
 				.withPosition(0, 0),
+			true,
 			FL_DRIVE_MOTOR_ID,
 			FL_STEER_MOTOR_ID,
 			FL_STEER_ENCODER_ID,
@@ -107,9 +108,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
 		modules[1] = new SwerveModule(
 			"FR",
 			tab.getLayout("Front Right Module", BuiltInLayouts.kGrid)
-				.withProperties(Map.of("Number of columns", 3, "Number of rows", 1, "Label position", "Top"))
+				.withProperties(Map.of("Number of columns", 3, "Number of rows", 1, "Label position", "HIDDEN"))
 				.withSize(4, 3)
 				.withPosition(4, 0),
+				false,
 			FR_DRIVE_MOTOR_ID,
 			FR_STEER_MOTOR_ID,
 			FR_STEER_ENCODER_ID,
@@ -118,9 +120,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
 		modules[2] = new SwerveModule(
 			"BL",
 			tab.getLayout("Back Left Module", BuiltInLayouts.kGrid)
-				.withProperties(Map.of("Number of columns", 3, "Number of rows", 1, "Label position", "Top"))
+				.withProperties(Map.of("Number of columns", 3, "Number of rows", 1, "Label position", "HIDDEN"))
 				.withSize(4, 3)
 				.withPosition(0, 3),
+				false,
 				BL_DRIVE_MOTOR_ID,
 				BL_STEER_MOTOR_ID,
 				BL_STEER_ENCODER_ID,
@@ -129,9 +132,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
 		modules[3] = new SwerveModule(
 			"BR",
 			tab.getLayout("Back Right Module", BuiltInLayouts.kGrid)
-				.withProperties(Map.of("Number of columns", 3, "Number of rows", 1, "Label position", "Top"))
+				.withProperties(Map.of("Number of columns", 3, "Number of rows", 1, "Label position", "HIDDEN"))
 				.withSize(4, 3)
 				.withPosition(4, 3),
+				false,
 			BR_DRIVE_MOTOR_ID,
 			BR_STEER_MOTOR_ID,
 			BR_STEER_ENCODER_ID,
@@ -141,7 +145,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 		calibrateWheels();
 		odometer = new SwerveDriveOdometry(
 				kinematics, 
-				getGyroscopeRotation(), 
+				getGyroscopeRotation(),
 				getModulePositions(),
 				new Pose2d(5.0, 5.0, new Rotation2d()));
 		}
@@ -155,7 +159,9 @@ public class DrivetrainSubsystem extends SubsystemBase {
 		odometer.resetPosition(new Rotation2d(), getModulePositions(), getPose());
 	}
 	public void calibrateWheels() {
-		for (int i = 0; i < 4; i++) modules[i].resetToAbsolute();
+		for (int i = 0; i < 4; i++) {
+			modules[i].resetToAbsolute();
+		};
 	}
 	public Rotation2d getGyroscopeRotation() {//todo make continuous vs not continuous versions
 		return pigeon.getRotation2d();
