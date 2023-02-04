@@ -8,6 +8,7 @@ import org.opencv.core.Mat;
 
 import com.ctre.phoenixpro.signals.InvertedValue;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -28,15 +29,14 @@ public final class Constants {
     public static final class DriveConstants {
         private DriveConstants() {
         }
+        public static final Pose2d DRIVE_ODOMETRY_ORIGIN = new Pose2d(5.0, 5.0, new Rotation2d());
         /**
          * The left-to-right distance between the drivetrain wheels
-         *
          * Should be measured from center to center.
          */
         public static final double DRIVETRAIN_TRACKWIDTH_METERS = 0.4953;
         /**
          * The front-to-back distance between the drivetrain wheels.
-         *  
          * Should be measured from center to center.
          */
         public static final double DRIVETRAIN_WHEELBASE_METERS = 0.4953;
@@ -120,41 +120,34 @@ public final class Constants {
         public static final int FL_DRIVE_MOTOR_ID = 1;
         public static final int FL_STEER_MOTOR_ID = 2;
         public static final int FL_STEER_ENCODER_ID = 1;
-        public static final Rotation2d FL_STEER_OFFSET = Rotation2d.fromDegrees(97.646);
+        public static final Rotation2d FL_STEER_OFFSET = Rotation2d.fromRotations(0.272217);
 
         public static final int FR_DRIVE_MOTOR_ID = 3;
         public static final int FR_STEER_MOTOR_ID = 4;
         public static final int FR_STEER_ENCODER_ID = 2;
-        public static final Rotation2d FR_STEER_OFFSET = Rotation2d.fromDegrees(149.150);
+        public static final Rotation2d FR_STEER_OFFSET = Rotation2d.fromRotations(0.41333);
 
         public static final int BL_DRIVE_MOTOR_ID = 5;
         public static final int BL_STEER_MOTOR_ID = 6;
         public static final int BL_STEER_ENCODER_ID = 3;
-        public static final Rotation2d BL_STEER_OFFSET = Rotation2d.fromDegrees(318.164);
+        public static final Rotation2d BL_STEER_OFFSET = Rotation2d.fromRotations(-0.11792);
 
         public static final int BR_DRIVE_MOTOR_ID = 7;
         public static final int BR_STEER_MOTOR_ID = 8;
         public static final int BR_STEER_ENCODER_ID = 4;
-        public static final Rotation2d BR_STEER_OFFSET = Rotation2d.fromDegrees(145.547);
+        public static final Rotation2d BR_STEER_OFFSET = Rotation2d.fromRotations(0.403809);
 
         public static final double K_MAX_SPEED = 3.0; // 3 meters per second
         public static final double K_MAX_ANGULAR_SPEED = Math.PI; // 1/2 radians rotation per second
-
-        public static final double K_TURN_P = 0.0;
-        public static final double K_TURN_I = 0.0;
-        public static final double K_TURN_D = 0.0;
-        /** This tuning parameter indicates how close to "on target" the PID Controller will attempt to get.*/
-        public static final double K_TURN_TOLORANCE_DEGREES = 2.0;
-        public static final double K_TURN_TOLORANCE_DEG_PER_SEC = 10;
-
 
         // Drive Motor
         public static final double K_DRIVE_P = 0.03;
         public static final double K_DRIVE_I = 0;
         public static final double K_DRIVE_D = 0;
-        public static final double K_DRIVE_FF_S = 0; 
+        public static final double K_DRIVE_FF_S = 0;
         public static final double K_DRIVE_FF_V = 0;
-
+        public static final double DRIVE_DEADBAND_MPS = 0.01;
+        public static final double DRIVE_MOTOR_RAMP = 0.1;
         // Steer Motor
         /**
          * The maximum velocity of the steer motor. <p> 
@@ -169,8 +162,19 @@ public final class Constants {
         public static final double K_STEER_P = 8.0;
         public static final double K_STEER_I = 0.0;
         public static final double K_STEER_D = 0.0; 
-        public static final double K_STEER_FF_S = 0.0; 
-        public static final double K_STEER_FF_V = 0.0; 
+        public static final double K_STEER_FF_S = 0.0;
+        public static final double K_STEER_FF_V = 0.0;
+
+        // Auto PID loops
+        public static final double K_XY_P = 2.0; //FIXME increase this value to fit better.
+        public static final double K_XY_I = 0.0;
+        public static final double K_XY_D = 0.0;
+
+        public static final double K_THETA_P = 0.0;
+        public static final double K_THETA_I = 0.0;
+        public static final double K_THETA_D = 0.0;
+        public static final double K_THETA_TOLORANCE_DEGREES = 2.0;
+        public static final double K_THETA_TOLORANCE_DEG_PER_SEC = 10;
     }
     public final class PS4 {
         private PS4() {
@@ -191,22 +195,22 @@ public final class Constants {
     }
     
     public static final class AutoConstants {
-        public static final double kMaxSpeedMetersPerSecond = DriveConstants.MAX_VELOCITY_METERS_PER_SECOND / 4;
-        public static final double kMaxAngularSpeedRadiansPerSecond =
-                DriveConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND / 10;
-        public static final double kMaxAccelerationMetersPerSecondSquared = 3;
-        public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Math.PI / 4;
-        public static final double kPXController = 1.5;
-        public static final double kPYController = 1.5;
-        public static final double kPThetaController = 3;
+        // public static final double kMaxSpeedMetersPerSecond = DriveConstants.MAX_VELOCITY_METERS_PER_SECOND / 4;
+        // public static final double kMaxAngularSpeedRadiansPerSecond =
+        //         DriveConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND / 10;
+        // public static final double kMaxAccelerationMetersPerSecondSquared = 3;
+        // public static final double kMaxAngularAccelerationRadiansPerSecondSquared = Math.PI / 4;
+        // public static final double kPXController = 1.5;
+        // public static final double kPYController = 1.5;
+        // public static final double kPThetaController = 3;
 
-        public static final TrapezoidProfile.Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(
-            kMaxAngularSpeedRadiansPerSecond,
-            kMaxAngularAccelerationRadiansPerSecondSquared);
-        public static final TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
-            kMaxSpeedMetersPerSecond,
-            kMaxAccelerationMetersPerSecondSquared)
-            .setKinematics(DriveConstants.kinematics);
+        // public static final TrapezoidProfile.Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(
+        //     kMaxAngularSpeedRadiansPerSecond,
+        //     kMaxAngularAccelerationRadiansPerSecondSquared);
+        // public static final TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
+        //     kMaxSpeedMetersPerSecond,
+        //     kMaxAccelerationMetersPerSecondSquared)
+        //     .setKinematics(DriveConstants.kinematics);
     }
 }
 

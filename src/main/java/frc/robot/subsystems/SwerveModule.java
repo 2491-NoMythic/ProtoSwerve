@@ -142,7 +142,7 @@ public class SwerveModule {
     ShuffleboardLayout ModuleInfo = sbLayout.getLayout("ModuleInfo", BuiltInLayouts.kGrid)
       .withProperties(Map.of("Number of columns", 1, "Number of rows", 4, "Label position", "RIGHT"));
 
-    MotorInfo.add(moduleName + " Angle", new GyroView(() -> getRotation().getDegrees()))
+    MotorInfo.add(moduleName + " Angle", new GyroView(() -> MathUtil.inputModulus(getRotation().getDegrees(), -180.0, 180.0)))
       .withWidget(BuiltInWidgets.kGyro) 
       .withProperties(Map.of("Major tick spacing", 180, "Counter Clockwise", true));
     MotorInfo.addNumber(moduleName + " Drive Voltage", () -> m_driveMotor.getStatorCurrent().getValue());
@@ -159,17 +159,17 @@ public class SwerveModule {
       debugInfo.addNumber("Drive Error", () -> m_driveMotor.getClosedLoopError().getValue());
 
       debugInfo.addNumber("Steer Target", () -> m_steerMotor.getClosedLoopReference().getValue());
-      debugInfo.addNumber("Steer Value", () -> MathUtil.inputModulus(getRotation().getRotations(), -0.5, 0.5));
+      debugInfo.addNumber("Steer Value", () -> getRotation().getRotations());
       debugInfo.addNumber("Steer Error", () -> m_steerMotor.getClosedLoopError().getValue());
       debugInfo.add(m_steerMotor);
     }
 
   }
 
-  public void resetToAbsolute(){
-    double absolutePosition = m_steerEncoder.getAbsolutePosition().getValue() -m_steerEncoderOffset.getRotations();
-    m_steerMotor.setRotorPosition(absolutePosition);
-  }
+  // public void resetToAbsolute(){
+  //   double absolutePosition = m_steerEncoder.getAbsolutePosition().getValue() -m_steerEncoderOffset.getRotations();
+  //   m_steerMotor.setRotorPosition(absolutePosition);
+  // }
   /**
    * Returns the current state of the module.
    * @return The current state of the module.
@@ -191,7 +191,7 @@ public class SwerveModule {
    * @return The current encoder angle of the steer motor.
    */
   public Rotation2d getRotation() {
-    return Rotation2d.fromRotations(m_steerMotor.getPosition().getValue());
+    return Rotation2d.fromRotations(MathUtil.inputModulus(m_steerMotor.getPosition().getValue(), -0.5, 0.5));
   }
   /**
    * Returns the target angle of the wheel.

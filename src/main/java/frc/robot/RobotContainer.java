@@ -6,7 +6,15 @@ package frc.robot;
 
 import static frc.robot.Constants.PS4.*;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.auto.PIDConstants;
+import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PS4Controller;
@@ -32,7 +40,6 @@ import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.commands.Drive;
 import frc.robot.subsystems.DrivetrainSubsystem;
-import frc.robot.autonomous.*;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -76,19 +83,20 @@ public class RobotContainer {
       () -> getJoystickMagnitude(Z_AXIS, Z_ROTATE));
 
     drivetrain.setDefaultCommand(defaultDriveCommand);
-    SmartDashboard.putNumber("kPxy", 1.5);
-    SmartDashboard.putNumber("kIxy", 0);
-    SmartDashboard.putNumber("kDxy", 0);
-    SmartDashboard.putNumber("kPtheta", 3);
-    SmartDashboard.putNumber("kItheta", 0);
-    SmartDashboard.putNumber("kDtheta", 0);
-    SmartDashboard.setPersistent("kPxy");
-    SmartDashboard.setPersistent("kIxy");
-    SmartDashboard.setPersistent("kDxy");
-    SmartDashboard.setPersistent("kPtheta");
-    SmartDashboard.setPersistent("kItheta");
-    SmartDashboard.setPersistent("kDtheta");
+    // SmartDashboard.putNumber("kPxy", 1.5);
+    // SmartDashboard.putNumber("kIxy", 0);
+    // SmartDashboard.putNumber("kDxy", 0);
+    // SmartDashboard.putNumber("kPtheta", 3);
+    // SmartDashboard.putNumber("kItheta", 0);
+    // SmartDashboard.putNumber("kDtheta", 0);
+    // SmartDashboard.setPersistent("kPxy");
+    // SmartDashboard.setPersistent("kIxy");
+    // SmartDashboard.setPersistent("kDxy");
+    // SmartDashboard.setPersistent("kPtheta");
+    // SmartDashboard.setPersistent("kItheta");
+    // SmartDashboard.setPersistent("kDtheta");
     SmartDashboard.putData("Auto Chooser", autoChooser);
+    SmartDashboard.putData("DriveTurn180", autoBuilder.fullAuto(pathGroup));
     // SmartDashboard.putData("Basic Auto", new BasicAuto(xController, yController, thetaController, drivetrain));
     // SmartDashboard.putData("Forward Turn Auto", new ForwardsTurn180(xController, yController, thetaController, drivetrain));
     // Configure the button bindings
@@ -143,35 +151,43 @@ public class RobotContainer {
   private static double modifyAxis(double value, double deadband) {
     // Deadband
     value = deadband(value, deadband);
-
     // Square the axis
     value = Math.copySign(value * value, value);
-
     return value;
   }
   public void robotInit() {
     drivetrain.zeroGyroscope();
-    autoInit();
-    autoChooser.setDefaultOption("Basic Auto", new BasicAuto(xController, yController, thetaController, drivetrain));
-    autoChooser.addOption("2 meters, rotate 180", new ForwardsTurn180(xController, yController, thetaController, drivetrain));
+    // autoChooser.setDefaultOption([Auto Goes Here]);
   }
   public void teleopInit() {
     drivetrain.pointWheelsForward();
   }
-  public void autoInit() {
-    xController = new PIDController(
-      SmartDashboard.getNumber("kPxy", 1.5),
-      SmartDashboard.getNumber("kIxy", 0),
-      SmartDashboard.getNumber("kDxy", 0));
-    yController = new PIDController(
-      SmartDashboard.getNumber("kPxy", 1.5),
-      SmartDashboard.getNumber("kIxy", 0),
-      SmartDashboard.getNumber("kDxy", 0));
-    thetaController = new ProfiledPIDController(
-      SmartDashboard.getNumber("kPtheta", 3),
-      SmartDashboard.getNumber("kItheta", 0),
-      SmartDashboard.getNumber("kDtheta", 0),
-      AutoConstants.kThetaControllerConstraints);
-    thetaController.enableContinuousInput(-Math.PI, Math.PI);
-  }
+
+  
+  // This is just an example event map. It would be better to have a constant, global event map
+  // in your code that will be used by all path following commands.
+  HashMap<String, Command> eventMap = new HashMap<>();
+  
+  // Create the AutoBuilder. This only needs to be created once when robot code starts, not every time you want to create an auto command. A good place to put this is in RobotContainer along with your subsystems.
+  SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
+  drivetrain::getPose, // Pose2d supplier
+  drivetrain::resetOdometry, // Pose2d consumer, used to reset odometry at the beginning of auto
+  drivetrain.kinematics, // SwerveDriveKinematics
+  new PIDConstants(
+    DriveConstants.K_XY_P,
+      DriveConstants.K_XY_I,
+      DriveConstants.K_XY_D), // PID constants to correct for translation error (used to create the X and Y PID controllers)
+      new PIDConstants(
+        DriveConstants.K_THETA_P,
+        DriveConstants.K_THETA_I,
+        DriveConstants.K_THETA_D), // PID constants to correct for rotation error (used to create the rotation controller)
+        drivetrain::setModuleStates, // Module states consumer used to output to the drive subsystem
+        eventMap,
+        true, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
+        drivetrain // The drive subsystem. Used to properly set the requirements of path following commands
+        );
+        
+    List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup("Forward180", new PathConstraints(2, 3));
+    Command fullAuto = autoBuilder.fullAuto(pathGroup);
+    
 }

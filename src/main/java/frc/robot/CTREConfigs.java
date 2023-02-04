@@ -27,7 +27,7 @@ public class CTREConfigs {
         // Steer motor.
         steerMotorConfig.Feedback.RotorToSensorRatio = 1/DRIVETRAIN_STEER_REDUCTION;
         steerMotorConfig.MotorOutput.Inverted = DRIVETRAIN_STEER_INVERTED;
-        steerMotorConfig.MotorOutput.DutyCycleNeutralDeadband = 0.05;
+        // steerMotorConfig.MotorOutput.DutyCycleNeutralDeadband = 0.05;
         steerMotorConfig.Slot0.kP = K_STEER_P;
         steerMotorConfig.Slot0.kI = K_STEER_I;
         steerMotorConfig.Slot0.kD = K_STEER_D;
@@ -42,6 +42,7 @@ public class CTREConfigs {
         driveMotorConfig.Feedback.SensorToMechanismRatio = 1/DRIVETRAIN_DRIVE_REDUCTION;
         driveMotorConfig.MotorOutput.Inverted = DRIVETRAIN_DRIVE_INVERTED;
         driveMotorConfig.MotorOutput.DutyCycleNeutralDeadband = 0.0;
+        driveMotorConfig.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod = DRIVE_MOTOR_RAMP;
         driveMotorConfig.Slot0.kP = K_DRIVE_P;
         driveMotorConfig.Slot0.kI = K_DRIVE_I;
         driveMotorConfig.Slot0.kD = K_DRIVE_D;
