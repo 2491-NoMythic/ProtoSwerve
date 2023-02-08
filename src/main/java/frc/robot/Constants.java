@@ -174,15 +174,15 @@ public final class Constants {
         private PS4() {
         }
         public static final int CONTROLLER_ID = 1;
-        /**Left Stick Tilt Left/Right*/
-        public static final int X_AXIS = 1; 
-        /**Left Stick Tilt Forwards/Backwards*/
-        public static final int Y_AXIS = 0;
-        /**Right Stick Tilt Left/Right*/
+        /**Left stick Y-axis. <p> Left = -1 || Right = 1*/
+        public static final int X_AXIS = 0; 
+        /**Left stick X-axis. <p> Forwards = -1 || Backwards = 1*/
+        public static final int Y_AXIS = 1;
+        /**Right stick Z-axis. <p> Left = -1 || Right = 1*/
         public static final int Z_AXIS = 2;
+        /**Right stick Z-rotate. <p> Forwards = -1 || Backwards = 1*/
         public static final int Z_ROTATE = 5;
-        public static final int SLIDER_AXIS = 3;
-        public static final int TRIGGER_BUTTON = 0;
+        /**Value used to differentiate between angle 0 and rest position.*/
         public static final double NO_INPUT = 404;
         public static final double DEADBAND_NORMAL = 0.05;
         public static final double DEADBAND_LARGE = 0.1;

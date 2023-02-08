@@ -57,15 +57,16 @@ public class RobotContainer {
 
     // Set up the default command for the drivetrain.
     // The controls are for field-oriented driving:
-    // Left stick Y axis -> forward and backwards movement
-    // Left stick X axis -> left and right movement
-    // Right stick X axis -> rotation
+    // Left stick Y axis -> Robot X movement, backward/forward
+    // Left stick X axis -> Robot Y movement, right/left
+    // Right stick Z axis -> rotation, clockwise, counterclockwise
+    // Need to invert the joystick axis
     defaultDriveCommand = new Drive(
       drivetrain,
       () -> controller.getL1Button(),
       () -> controller.getR1Button(),
-      () -> modifyAxis(-controller.getRawAxis(X_AXIS), DEADBAND_NORMAL),
       () -> modifyAxis(-controller.getRawAxis(Y_AXIS), DEADBAND_NORMAL),
+      () -> modifyAxis(-controller.getRawAxis(X_AXIS), DEADBAND_NORMAL),
       () -> modifyAxis(-controller.getRawAxis(Z_AXIS), DEADBAND_NORMAL),
       () -> getJoystickDegrees(Z_AXIS, Z_ROTATE),
       () -> getJoystickMagnitude(Z_AXIS, Z_ROTATE));
