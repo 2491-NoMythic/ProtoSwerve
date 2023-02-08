@@ -213,17 +213,17 @@ public Command followPPTrajectory(PathPlannerTrajectory traj, boolean isFirstPat
 			 this::getPose, // Pose supplier
 			 this.kinematics, // SwerveDriveKinematics
 			 new PIDController(// X controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
-			 DriveConstants.K_XY_P,
-			 DriveConstants.K_XY_I,
-			 DriveConstants.K_XY_D),
+			 DriveConstants.k_XY_P,
+			 DriveConstants.k_XY_I,
+			 DriveConstants.k_XY_D),
 			  new PIDController(// Y controller (usually the same values as X controller)
-			  DriveConstants.K_XY_P,
-			  DriveConstants.K_XY_I,
-			  DriveConstants.K_XY_D),
+			  DriveConstants.k_XY_P,
+			  DriveConstants.k_XY_I,
+			  DriveConstants.k_XY_D),
 			  new PIDController(// Rotation controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
-			  DriveConstants.K_THETA_P,
-			  DriveConstants.K_THETA_I,
-			  DriveConstants.K_THETA_D),
+			  DriveConstants.k_THETA_P,
+			  DriveConstants.k_THETA_I,
+			  DriveConstants.k_THETA_D),
 			 this::setModuleStates, // Module states consumer
 			 true, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
 			 this // Requires this drive subsystem

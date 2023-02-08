@@ -137,15 +137,12 @@ public final class Constants {
         public static final int BR_STEER_ENCODER_ID = 4;
         public static final Rotation2d BR_STEER_OFFSET = Rotation2d.fromRotations(0.403809);
 
-        public static final double K_MAX_SPEED = 3.0; // 3 meters per second
-        public static final double K_MAX_ANGULAR_SPEED = Math.PI; // 1/2 radians rotation per second
-
         // Drive Motor
-        public static final double K_DRIVE_P = 0.03;
-        public static final double K_DRIVE_I = 0;
-        public static final double K_DRIVE_D = 0;
-        public static final double K_DRIVE_FF_S = 0;
-        public static final double K_DRIVE_FF_V = 0;
+        public static final double k_DRIVE_P = 0.03;
+        public static final double k_DRIVE_I = 0;
+        public static final double k_DRIVE_D = 0;
+        public static final double k_DRIVE_FF_S = 0;
+        public static final double k_DRIVE_FF_V = 0;
         public static final double DRIVE_DEADBAND_MPS = 0.01;
         public static final double DRIVE_MOTOR_RAMP = 0.1;
         // Steer Motor
@@ -159,22 +156,23 @@ public final class Constants {
          * This is the limit of how fast the wheels can change rotation speed.
          */
         public static final double MAX_STEER_ACCELERATION_RADIANS_PER_SECOND_SQUARED = 2 * Math.PI; 
-        public static final double K_STEER_P = 8.0;
-        public static final double K_STEER_I = 0.0;
-        public static final double K_STEER_D = 0.0; 
-        public static final double K_STEER_FF_S = 0.0;
-        public static final double K_STEER_FF_V = 0.0;
+        public static final double k_STEER_P = 8.0;
+        public static final double k_STEER_I = 0.0;
+        public static final double k_STEER_D = 0.0; 
+        public static final double k_STEER_FF_S = 0.0;
+        public static final double k_STEER_FF_V = 0.0;
 
         // Auto PID loops
-        public static final double K_XY_P = 2.0; //FIXME increase this value to fit better.
-        public static final double K_XY_I = 0.0;
-        public static final double K_XY_D = 0.0;
+        // twin pid controllers that control the x and y robot movements.
+        public static final double k_XY_P = 2.5;
+        public static final double k_XY_I = 0.0;
+        public static final double k_XY_D = 0.0;
 
-        public static final double K_THETA_P = 0.0;
-        public static final double K_THETA_I = 0.0;
-        public static final double K_THETA_D = 0.0;
-        public static final double K_THETA_TOLORANCE_DEGREES = 2.0;
-        public static final double K_THETA_TOLORANCE_DEG_PER_SEC = 10;
+        public static final double k_THETA_P = 5.0;
+        public static final double k_THETA_I = 0.0;
+        public static final double k_THETA_D = 0.0;
+        public static final double k_THETA_TOLORANCE_DEGREES = 2.0;
+        public static final double k_THETA_TOLORANCE_DEG_PER_SEC = 10;
     }
     public final class PS4 {
         private PS4() {

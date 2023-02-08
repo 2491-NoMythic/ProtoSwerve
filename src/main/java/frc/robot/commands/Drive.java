@@ -38,9 +38,9 @@ public class Drive extends CommandBase {
         this.rotationSupplier = rotationSupplier;
         this.turnSupplier = turnSupplier;
         this.rightStickMagnitudeSupplier = rightStickMagnitudeSupplier;
-        turnController = new PIDController(DriveConstants.K_THETA_P, DriveConstants.K_THETA_I, DriveConstants.K_THETA_D);
+        turnController = new PIDController(DriveConstants.k_THETA_P, DriveConstants.k_THETA_I, DriveConstants.k_THETA_D);
         turnController.enableContinuousInput(-180.0, 180.0);
-        turnController.setTolerance(DriveConstants.K_THETA_TOLORANCE_DEGREES, DriveConstants.K_THETA_TOLORANCE_DEG_PER_SEC);
+        turnController.setTolerance(DriveConstants.k_THETA_TOLORANCE_DEGREES, DriveConstants.k_THETA_TOLORANCE_DEG_PER_SEC);
         
         addRequirements(drivetrainSubsystem);
     }

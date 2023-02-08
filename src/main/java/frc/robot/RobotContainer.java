@@ -61,9 +61,6 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    // SmartDashboard.putData("xController", xController);
-    // SmartDashboard.putData("yController", yController);
-    // SmartDashboard.putData("thetaController", thetaController);
 
     autoChooser = new SendableChooser<>();
 
@@ -83,23 +80,11 @@ public class RobotContainer {
       () -> getJoystickMagnitude(Z_AXIS, Z_ROTATE));
 
     drivetrain.setDefaultCommand(defaultDriveCommand);
-    // SmartDashboard.putNumber("kPxy", 1.5);
-    // SmartDashboard.putNumber("kIxy", 0);
-    // SmartDashboard.putNumber("kDxy", 0);
-    // SmartDashboard.putNumber("kPtheta", 3);
-    // SmartDashboard.putNumber("kItheta", 0);
-    // SmartDashboard.putNumber("kDtheta", 0);
-    // SmartDashboard.setPersistent("kPxy");
-    // SmartDashboard.setPersistent("kIxy");
-    // SmartDashboard.setPersistent("kDxy");
-    // SmartDashboard.setPersistent("kPtheta");
-    // SmartDashboard.setPersistent("kItheta");
-    // SmartDashboard.setPersistent("kDtheta");
+
     SmartDashboard.putData("Auto Chooser", autoChooser);
-    SmartDashboard.putData("DriveTurn180", autoBuilder.fullAuto(pathGroup));
-    // SmartDashboard.putData("Basic Auto", new BasicAuto(xController, yController, thetaController, drivetrain));
-    // SmartDashboard.putData("Forward Turn Auto", new ForwardsTurn180(xController, yController, thetaController, drivetrain));
-    // Configure the button bindings
+    SmartDashboard.putData("DriveTurn180", autoBuilder.fullAuto(pathGroup1));
+    SmartDashboard.putData("OneConeAuto", autoBuilder.fullAuto(pathGroup2));
+    SmartDashboard.putData("CoolCircle", autoBuilder.fullAuto(pathGroup3));
     configureButtonBindings();
   }
   /**Takes both axis of a joystick, returns an angle from -180 to 180 degrees, or {@link Constants.PS4.NO_INPUT} (double = 404.0) if the joystick is at rest position*/
@@ -167,27 +152,35 @@ public class RobotContainer {
   // This is just an example event map. It would be better to have a constant, global event map
   // in your code that will be used by all path following commands.
   HashMap<String, Command> eventMap = new HashMap<>();
+  // eventMap.put("marker1", new PrintCommand("Passed marker 1"));
+  // eventMap.put("intakeDown", new IntakeDown());
   
   // Create the AutoBuilder. This only needs to be created once when robot code starts, not every time you want to create an auto command. A good place to put this is in RobotContainer along with your subsystems.
   SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
-  drivetrain::getPose, // Pose2d supplier
-  drivetrain::resetOdometry, // Pose2d consumer, used to reset odometry at the beginning of auto
-  drivetrain.kinematics, // SwerveDriveKinematics
-  new PIDConstants(
-    DriveConstants.K_XY_P,
-      DriveConstants.K_XY_I,
-      DriveConstants.K_XY_D), // PID constants to correct for translation error (used to create the X and Y PID controllers)
+      drivetrain::getPose, // Pose2d supplier
+      drivetrain::resetOdometry, // Pose2d consumer, used to reset odometry at the beginning of auto
+      drivetrain.kinematics, // SwerveDriveKinematics
       new PIDConstants(
-        DriveConstants.K_THETA_P,
-        DriveConstants.K_THETA_I,
-        DriveConstants.K_THETA_D), // PID constants to correct for rotation error (used to create the rotation controller)
-        drivetrain::setModuleStates, // Module states consumer used to output to the drive subsystem
-        eventMap,
-        true, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
-        drivetrain // The drive subsystem. Used to properly set the requirements of path following commands
-        );
-        
-    List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup("Forward180", new PathConstraints(2, 3));
-    Command fullAuto = autoBuilder.fullAuto(pathGroup);
+          DriveConstants.k_XY_P,
+          DriveConstants.k_XY_I,
+          DriveConstants.k_XY_D), // PID constants to correct for translation error (used to create the X and Y PID controllers)
+      new PIDConstants(
+          DriveConstants.k_THETA_P,
+          DriveConstants.k_THETA_I,
+          DriveConstants.k_THETA_D), // PID constants to correct for rotation error (used to create the rotation controller)
+      drivetrain::setModuleStates, // Module states consumer used to output to the drive subsystem
+      eventMap,
+      true, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
+      drivetrain // The drive subsystem. Used to properly set the requirements of path following commands
+  );
+
+  List<PathPlannerTrajectory> pathGroup1 = PathPlanner.loadPathGroup("Forward180", new PathConstraints(3, 1.5));
+  Command Forward180 = autoBuilder.fullAuto(pathGroup1);
+    
+  List<PathPlannerTrajectory> pathGroup2 = PathPlanner.loadPathGroup("1 cone auto", new PathConstraints(3, 1.5));
+  Command coneAuto = autoBuilder.fullAuto(pathGroup2);
+    
+  List<PathPlannerTrajectory> pathGroup3 = PathPlanner.loadPathGroup("cool circle", new PathConstraints(3, 1.5));
+  Command circle = autoBuilder.fullAuto(pathGroup3);
     
 }
