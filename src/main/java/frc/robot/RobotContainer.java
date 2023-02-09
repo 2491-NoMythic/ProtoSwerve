@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PS4Controller;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -81,8 +82,8 @@ public class RobotContainer {
   }
   /**Takes both axis of a joystick, returns an angle from -180 to 180 degrees, or {@link Constants.PS4.NO_INPUT} (double = 404.0) if the joystick is at rest position*/
   private double getJoystickDegrees(int horizontalAxis, int verticalAxis) {
-    double xAxis = deadband(-controller.getRawAxis(horizontalAxis), DEADBAND_LARGE);
-    double yAxis = deadband(-controller.getRawAxis(verticalAxis), DEADBAND_LARGE);
+    double xAxis = MathUtil.applyDeadband(-controller.getRawAxis(horizontalAxis), DEADBAND_LARGE);
+    double yAxis = MathUtil.applyDeadband(-controller.getRawAxis(verticalAxis), DEADBAND_LARGE);
     if (xAxis + yAxis != 0) {
       return Math.toDegrees(Math.atan2(xAxis, yAxis));
     }
@@ -90,8 +91,8 @@ public class RobotContainer {
   }
   /**Takes both axis of a joystick, returns a double from 0-1 */
   private double getJoystickMagnitude(int horizontalAxis, int verticalAxis) {
-    double xAxis = deadband(-controller.getRawAxis(horizontalAxis), DEADBAND_NORMAL);
-    double yAxis = deadband(-controller.getRawAxis(verticalAxis), DEADBAND_NORMAL);
+    double xAxis = MathUtil.applyDeadband(-controller.getRawAxis(horizontalAxis), DEADBAND_NORMAL);
+    double yAxis = MathUtil.applyDeadband(-controller.getRawAxis(verticalAxis), DEADBAND_NORMAL);
     return Math.min(1.0, (Math.sqrt(Math.pow(xAxis, 2) + Math.pow(yAxis, 2)))); // make sure the number is not greater than 1
   }
   /**
@@ -113,21 +114,9 @@ public class RobotContainer {
     return autoChooser.getSelected();
   }
 
-  private static double deadband(double value, double deadband) {
-    if (Math.abs(value) > deadband) {
-      if (value > 0.0) {
-        return (value - deadband) / (1.0 - deadband);
-      } else {
-        return (value + deadband) / (1.0 - deadband);
-      }
-    } else {
-      return 0.0;
-    }
-  }
-
   private static double modifyAxis(double value, double deadband) {
     // Deadband
-    value = deadband(value, deadband);
+    value = MathUtil.applyDeadband(value, deadband);
     // Square the axis
     value = Math.copySign(value * value, value);
     return value;
